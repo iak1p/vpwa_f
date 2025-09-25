@@ -10,6 +10,10 @@ const routes: RouteRecordRaw[] = [
     path: '/test',
     component: () => import('pages/TestPage.vue'),
   },
+  {
+    path: '/main',
+    component: () => import('pages/MainPage.vue'),
+  },
   // Always leave this as last one,
   // but you can also remove it
   {
