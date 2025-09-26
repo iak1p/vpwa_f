@@ -1,6 +1,6 @@
-<template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+<!-- <template>
+  <q-layout view="Lpr lFf"> -->
+    <!-- <q-header elevated>
       <q-toolbar>
         <q-btn
           flat
@@ -11,92 +11,51 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-toolbar-title> Quasar App </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
-    </q-header>
+    </q-header> -->
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+    <!-- <div class="bg-grey-2 q-pa-md" style="width: 100px; min-height: 100vh">
+      <ChannelComponent
+        v-for="value in source"
+        :key="value.name"
+        v-bind="value"
+      />
+    </div>
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
+    <div class="bg-grey-2 q-pa-md" style="width: 100px; min-height: 100vh">
+      <div class="channel-header">
+        <p>Chanel1</p>
+
+      </div>
+    </div>
 
     <q-page-container>
       <router-view />
     </q-page-container>
   </q-layout>
-</template>
+</template> -->
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+<!-- <script setup lang="ts">
+// import { ref } from "vue";
 
-const linksList: EssentialLinkProps[] = [
+import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
+import ChannelComponent from "src/components/ChannelComponent.vue";
+
+const source: ChannelComponentProps[] = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    title: "Channel 1",
+    color: "#26A69A",
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    title: "Channel 2",
+    color: "#1976D2",
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    title: "Channel 3",
+    color: "#9C27B0",
   },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
 ];
-
-const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
-}
-</script>
+</script> -->
