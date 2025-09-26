@@ -1,16 +1,23 @@
 <template>
   <div
     class=""
-    style="display: grid; grid-template-columns: 80px 250px auto; height: 100vh"
+    style="
+      display: grid;
+      grid-template-columns: 80px 350px auto 350px;
+      height: 100vh;
+    "
   >
-    <div
-      class="q-pa-md col bg-green-3"
+    <section
+      class="q-pa-md col"
       style="
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
-        border-right: 1px solid green;
+        border-right: 1px solid #424549;
+        background-color: #282b30;
+        overflow-y: auto;
+        scrollbar-width: none;
       "
     >
       <ChannelComponent
@@ -20,20 +27,43 @@
         :active="activeChannel === value.title"
         @click="activeChannel = value.title"
       />
-    </div>
 
-    <div class="bg-green-3 col" style="">
+      <q-btn
+        color="teal-7"
+        flat
+        icon="add"
+        style="width: 50px; height: 50px; border-radius: 10px"
+      />
+    </section>
+
+    <div
+      class="col"
+      style="background-color: #282b30; border-right: 1px solid #424549"
+    >
+      <div class="channel__header">
+        <p>{{ activeChannel }}</p>
+        <!-- <p>Savelii Shaposhnyk</p> -->
+      </div>
+
       <ChannelChatsComponent
         v-bind="chatsMap[activeChannel] ?? { title: '', chats: [] }"
       />
     </div>
 
-    <div class="q-pa-md col" style="background-color: lightgreen">
-      <ChannelComponent
+    <div class="q-pa-md col" style="background-color: #282b30">
+      <!-- <ChannelComponent
         v-for="value in source"
         :key="value.title"
         v-bind="value"
-      />
+      /> -->
+    </div>
+
+    <div class="q-pa-md col" style="background-color: #282b30">
+      <!-- <ChannelComponent
+        v-for="value in source"
+        :key="value.title"
+        v-bind="value"
+      /> -->
     </div>
   </div>
 </template>
@@ -56,6 +86,10 @@ const source: ChannelComponentProps[] = [
   },
   {
     title: "Channel 3",
+    color: "#9C27B0",
+  },
+  {
+    title: "test channel",
     color: "#9C27B0",
   },
 ];
@@ -84,3 +118,25 @@ const chatsMap: Record<string, ChannelChatComponentProps> = {
   },
 };
 </script>
+
+<style>
+.channel__header {
+  font-weight: bold;
+  font-size: 18px;
+  border-bottom: 1px solid #424549;
+  border-radius: 10px;
+  padding: 20px;
+  color: white;
+}
+
+.add-channel {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 50px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+</style>
