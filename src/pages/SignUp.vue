@@ -3,13 +3,13 @@
     <div class="signup-card">
       <h2>Create your account</h2>
 
-      <q-form novalidate @submit="onSubmit" class="form-grid">
+      <q-form novalidate @submit.prevent="onSubmit" class="form-grid">
         <q-input
           v-model="firstName"
           label="First name"
           outlined
           required
-          :rules="[(val) => !!val || 'Enter your name']"
+          :rules="[(val) => !!val]"
           hide-bottom-space
           no-error-icon
         />
@@ -19,7 +19,7 @@
           label="Last name"
           outlined
           required
-          :rules="[(val) => !!val || 'Enter your surname']"
+          :rules="[(val) => !!val]"
           hide-bottom-space
           no-error-icon
         />
@@ -29,7 +29,7 @@
           label="Nickname"
           outlined
           required
-          :rules="[(val) => !!val || 'Enter your username']"
+          :rules="[(val) => !!val]"
           hide-bottom-space
           no-error-icon
           class="full-row"
@@ -42,7 +42,7 @@
           outlined
           required
           :rules="[
-            (val) => !!val || 'Enter email',
+            (val) => !!val,
             (val) =>
               /.+@.+\..+/.test(val) ||
               `It should contains a symbol '@'. In email '${val}' it isnt.`,
@@ -58,7 +58,7 @@
           label="Password"
           outlined
           required
-          :rules="[(val) => !!val || 'Enter password']"
+          :rules="[(val) => !!val]"
           hide-bottom-space
           class="full-row"
         >
@@ -73,6 +73,7 @@
         </q-input>
 
         <q-btn
+          :loading="loading"
           label="Create account"
           type="submit"
           class="full-row text-weight-bold submit-btn"
@@ -84,6 +85,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const firstName = ref("");
 const lastName = ref("");
@@ -91,15 +93,47 @@ const nickname = ref("");
 const email = ref("");
 const password = ref("");
 const showPwd = ref(false);
+const loading = ref(false);
 
-function onSubmit() {
-  console.log({
-    firstName: firstName.value,
-    lastName: lastName.value,
-    nickname: nickname.value,
-    email: email.value,
-    password: password.value,
-  });
+const API = `http://localhost:3333`;
+const router = useRouter();
+// function onSubmit() {
+//   console.log({
+//     firstName: firstName.value,
+//     lastName: lastName.value,
+//     nickname: nickname.value,
+//     email: email.value,
+//     password: password.value,
+//   });
+// }
+async function onSubmit() {
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: firstName.value,
+        surname: lastName.value,
+        username: nickname.value,
+        email: email.value,
+        password: password.value,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Registration failed");
+    }
+    const tokenStr: string | undefined = data?.token?.token;
+    if (!tokenStr) throw new Error("Token not returned from server");
+
+    localStorage.setItem("token", tokenStr);
+    // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
+
+    await router.push("/main");
+  } catch (err: unknown) {
+    console.error("Registration error:", err);
+  }
 }
 </script>
 
