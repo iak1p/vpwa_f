@@ -1,43 +1,63 @@
 <template>
-  <div class="channel-header">
-    <p>{{ title }}</p>
-  </div>
-
-  <div class="channel-chats" v-for="chat in chats" :key="chat.id">
-    <div class="chat">
-      <span>#</span>
-      <p>{{ chat.name }}</p>
-    </div>
-  </div>
+  <section class="channel">
+    <ul class="channel__chat-list">
+      <li
+        v-for="chat in chats"
+        :key="chat.id"
+        class="channel__chat-item"
+        role="button"
+        tabindex="0"
+      >
+        <span class="channel__chat-icon" aria-hidden="true">#</span>
+        <p class="channel__chat-name">{{ chat.name }}</p>
+      </li>
+    </ul>
+  </section>
 </template>
 
 <script setup lang="ts">
-export interface ChannelChatComponentProps {
-  title: string;
-  chats: Chat[];
-}
+import type { Chat } from "./models";
 
-export interface Chat {
-  id: number;
-  name: string;
+export interface ChannelChatComponentProps {
+  chats: Chat[];
 }
 
 defineProps<ChannelChatComponentProps>();
 </script>
 
 <style>
-.channel-header {
-  font-weight: bold;
-  font-size: 18px;
-  border-bottom: 1px solid green;
-  padding: 20px 10px;
-}
-.channel-chats {
+.channel__chat-list {
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: white;
+  padding: 20px 20px 0 10px;
 }
-.chat {
+
+.channel__chat-item {
   display: flex;
-  padding: 10px;
+  align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  user-select: none;
+}
+
+.channel__chat-item:hover {
+  background-color: #36393e;
+}
+
+.channel__chat-icon {
+  margin-right: 8px;
+  color: #aaa;
+  font-size: 15px;
+  user-select: none;
+}
+
+.channel__chat-name {
+  margin: 0;
 }
 </style>

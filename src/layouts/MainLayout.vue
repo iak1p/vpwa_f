@@ -1,5 +1,5 @@
-<template>
-  <q-layout view="Lpr lFf">
+<!-- <template>
+  <q-layout view="Lpr lFf"> -->
     <!-- <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -17,10 +17,10 @@
       </q-toolbar>
     </q-header> -->
 
-    <div class="bg-grey-2 q-pa-md" style="width: 100px; min-height: 100vh">
+    <!-- <div class="bg-grey-2 q-pa-md" style="width: 100px; min-height: 100vh">
       <ChannelComponent
         v-for="value in source"
-        :key="value.title"
+        :key="value.name"
         v-bind="value"
       />
     </div>
@@ -28,7 +28,7 @@
     <div class="bg-grey-2 q-pa-md" style="width: 100px; min-height: 100vh">
       <div class="channel-header">
         <p>Chanel1</p>
-        
+
       </div>
     </div>
 
@@ -36,9 +36,9 @@
       <router-view />
     </q-page-container>
   </q-layout>
-</template>
+</template> -->
 
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 // import { ref } from "vue";
 
 import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
@@ -58,4 +58,4 @@ const source: ChannelComponentProps[] = [
     color: "#9C27B0",
   },
 ];
-</script>
+</script> -->
