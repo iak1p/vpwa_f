@@ -6,7 +6,7 @@
   >
     <span class="channel-icon__letters">
       {{
-        title
+        name
           .split(" ")
           .filter(Boolean)
           .map((word) => word[0])
@@ -19,12 +19,22 @@
 
 <script setup lang="ts">
 export interface ChannelComponentProps {
-  title: string;
-  color: string;
+  name: string;
+  color?: string;
+  createdAt: string;
+  isPrivate: boolean;
+  ownerId: number;
+  owner: Owner;
   active?: boolean;
 }
 
+interface Owner {
+  id: number;
+  name: string;
+}
+
 withDefaults(defineProps<ChannelComponentProps>(), {
+  color: "#26A69A",
   active: false,
 });
 </script>
@@ -40,6 +50,7 @@ withDefaults(defineProps<ChannelComponentProps>(), {
   font-size: 20px;
   cursor: pointer;
   user-select: none;
+  transition: 0.3s opacity ease;
 }
 
 .channel-icon:hover {

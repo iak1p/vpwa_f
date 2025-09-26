@@ -19,7 +19,6 @@
 import type { Chat } from "./models";
 
 export interface ChannelChatComponentProps {
-  title: string;
   chats: Chat[];
 }
 
