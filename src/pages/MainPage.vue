@@ -7,57 +7,15 @@
       :submit-create="submitCreate"
     />
 
-    <section
+    <SectionChats
       class="col"
-      style="background-color: #282b30; border-right: 1px solid #424549"
-    >
-      <div class="channel__header">
-        <p>{{ activeChannel || "no chat selected" }}</p>
-        <q-btn
-          v-if="activeChannel"
-          class="add-member-btn"
-          icon="person_add"
-          flat
-          round
-          size="sm"
-          @click="openAddDialog"
-        />
-      </div>
+      :active-channel="activeChannel"
+      :channels-loading="channelsLoading"
+      :channel-chats="channelChats"
+      :on-channel-click="onChannelClick"
+      :submit-add-member="submitAddMember"
+    />
 
-      <div
-        v-if="channelsLoading"
-        class="q-pa-md"
-        style="
-          display: flex;
-          gap: 5px;
-          flex-direction: column;
-          padding: 20px 20px 0 10px;
-        "
-      >
-        <div
-          class="loader"
-          style="
-            width: 100%;
-            background-color: gray;
-            border-radius: 5px;
-            opacity: 0.3;
-            height: 30px;
-          "
-        ></div>
-        <div
-          class="loader"
-          style="
-            width: 100%;
-            background-color: gray;
-            border-radius: 5px;
-            opacity: 0.3;
-            height: 30px;
-          "
-        ></div>
-      </div>
-
-      <ChannelChatsComponent v-else :chats="channelChats" />
-    </section>
 
     <section
       class="col"
@@ -99,50 +57,15 @@
   </div>
 
   <BottomModal />
-
-  <q-dialog v-model="add.open" persistent>
-    <q-card class="card--narrow">
-      <q-card-section class="card__title">Add member</q-card-section>
-
-      <q-card-section class="card__body">
-        <q-input
-          v-model="add.username"
-          label="Username"
-          outlined
-          :disable="add.loading"
-          :error="!!add.error"
-          :error-message="add.error"
-          @input="add.error = ''"
-          autofocus
-        />
-      </q-card-section>
-
-      <q-card-actions align="right" class="card__actions">
-        <q-btn
-          label="Cancel"
-          flat
-          :disable="add.loading"
-          @click="closeAddDialog"
-        />
-        <q-btn
-          label="Add"
-          color="primary"
-          :loading="add.loading"
-          :disable="add.loading"
-          @click="submitAddMember"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
 </template>
 
 <script setup lang="ts">
-import ChannelChatsComponent from "src/components/ChannelChatsComponent.vue";
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
 import type { Chat } from "src/components/ChannelChatsComponent.vue";
 import BottomModal from "src/components/BottomModal.vue";
 import SectionChannels from "src/components/SectionChannels.vue";
+import SectionChats from "src/components/SectionChats.vue";
 // import MessageComponent from "src/components/MessageComponent.vue";
 
 const API = "http://localhost:3333";
@@ -155,69 +78,6 @@ const channelChats = ref<Chat[]>([]);
 const message = ref("");
 
 const channelsLoading = ref(false);
-
-const add = reactive({
-  open: false,
-  loading: false,
-  username: "",
-  error: "" as string,
-});
-
-function openAddDialog() {
-  add.open = true;
-  add.username = "";
-  add.error = "";
-}
-function closeAddDialog() {
-  if (!add.loading) add.open = false;
-}
-
-async function submitAddMember() {
-  add.error = "";
-
-  if (!activeChannel.value) {
-    add.error = "Select a channel first";
-    return;
-  }
-  if (!add.username.trim()) {
-    add.error = "Username is required";
-    return;
-  }
-
-  add.loading = true;
-  try {
-    const url = `${API}/api/channels/${encodeURIComponent(
-      activeChannel.value
-    )}/members/${encodeURIComponent(add.username.trim())}`;
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-      },
-    });
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      add.error =
-        data?.message ||
-        (res.status === 404
-          ? "Not found"
-          : res.status === 403
-          ? "Forbidden"
-          : res.status === 409
-          ? "User already in channel"
-          : "Failed to add member");
-      return;
-    }
-
-    add.open = false;
-  } catch (e) {
-    add.error = e instanceof Error ? e.message : "Network error";
-  } finally {
-    add.loading = false;
-  }
-}
 
 async function submitCreate(create: any) {
   create.error = "";
@@ -264,6 +124,52 @@ async function submitCreate(create: any) {
   }
 }
 
+async function submitAddMember(add: any) {
+  add.error = "";
+
+  if (!activeChannel.value) {
+    add.error = "Select a channel first";
+    return;
+  }
+  if (!add.username.trim()) {
+    add.error = "Username is required";
+    return;
+  }
+
+  add.loading = true;
+  try {
+    const url = `${API}/api/channels/${encodeURIComponent(
+      activeChannel.value
+    )}/members/${encodeURIComponent(add.username.trim())}`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      add.error =
+        data?.message ||
+        (res.status === 404
+          ? "Not found"
+          : res.status === 403
+          ? "Forbidden"
+          : res.status === 409
+          ? "User already in channel"
+          : "Failed to add member");
+      return;
+    }
+
+    add.open = false;
+  } catch (e) {
+    add.error = e instanceof Error ? e.message : "Network error";
+  } finally {
+    add.loading = false;
+  }
+}
 onMounted(async () => {
   await fetch(`http://localhost:3333/api/channels/all/user`, {
     headers: {
@@ -325,17 +231,6 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   scrollbar-width: none;
 }
 
-.channel__header {
-  font-weight: bold;
-  font-size: 18px;
-  border-bottom: 1px solid #424549;
-  border-radius: 10px;
-  padding: 20px;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 .add-member-btn {
   margin-left: 8px;
 }
@@ -356,24 +251,5 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   0% {
     background-position: right;
   }
-}
-
-.card--wide {
-  min-width: 420px;
-}
-.card--narrow {
-  min-width: 360px;
-}
-.card__title {
-  font-size: 18px;
-  font-weight: 600;
-}
-.card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.card__actions {
-  gap: 12px;
 }
 </style>

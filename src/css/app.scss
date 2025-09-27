@@ -1,8 +1,26 @@
 // app global css in SCSS form
-*{
-    margin: 0px;
+* {
+  margin: 0px;
 }
 
-p{
-    margin: 0px;
+p {
+  margin: 0px;
+}
+.card--wide {
+  min-width: 420px;
+}
+.card--narrow {
+  min-width: 360px;
+}
+.card__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card__actions {
+  gap: 12px;
 }
