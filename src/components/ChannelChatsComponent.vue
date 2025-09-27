@@ -2,27 +2,38 @@
   <section class="channel">
     <ul class="channel__chat-list">
       <li
-        v-for="chat in chats"
+        v-for="chat in props.chats"
         :key="chat.id"
         class="channel__chat-item"
         role="button"
         tabindex="0"
       >
         <span class="channel__chat-icon" aria-hidden="true">#</span>
-        <p class="channel__chat-name">{{ chat.name }}</p>
+        <p class="channel__chat-name">{{ chat.title }}</p>
       </li>
     </ul>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { Chat } from "./models";
+// import type { Chat } from "./models";
 
-export interface ChannelChatComponentProps {
-  chats: Chat[];
+// export interface ChannelChatComponentProps<> {
+//   chats: Chat[];
+// }
+
+export interface Chat {
+  id: number;
+  title: string;
+  lastMessageId: number | null;
+  ownerId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-defineProps<ChannelChatComponentProps>();
+const props = withDefaults(defineProps<{ chats: Chat[] }>(), {
+  chats: () => [],
+});
 </script>
 
 <style>
