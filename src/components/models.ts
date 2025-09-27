@@ -9,5 +9,5 @@ export interface Meta {
 
 export interface Chat {
   id: number;
-  name: string;
+  title: string;
 }

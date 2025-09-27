@@ -1,13 +1,12 @@
 <template>
   <div class="app-grid">
-    <!-- Sidebar -->
     <section class="panel q-pa-md sidebar scroll-y">
       <ChannelComponent
-        v-for="ch in channels"
-        :key="ch.name"
-        v-bind="ch"
-        :active="activeChannel === ch.name"
-        @click="activeChannel = ch.name"
+        v-for="channel in channels"
+        :key="channel.name"
+        v-bind="channel"
+        :active="activeChannel === channel.name"
+        @click="onChannelClick(channel.name, channel.id)"
       />
       <q-btn
         class="add-channel-btn"
@@ -18,8 +17,10 @@
       />
     </section>
 
-    <!-- Channel area -->
-    <section class="panel">
+    <section
+      class="col"
+      style="background-color: #282b30; border-right: 1px solid #424549"
+    >
       <div class="channel__header">
         <p>{{ activeChannel || "no chat selected" }}</p>
         <q-btn
@@ -33,17 +34,77 @@
         />
       </div>
 
-      <ChannelChatsComponent
-        v-bind="chatsMap[activeChannel] ?? { name: '', chats: [] }"
-      />
+      <div
+        v-if="channelsLoading"
+        class="q-pa-md"
+        style="display: flex; gap: 5px; flex-direction: column;"
+      >
+        <div
+          class="loader"
+          style="
+            width: 100%;
+            height: 20px;
+            background-color: gray;
+            border-radius: 5px;
+            opacity: 0.5;
+          "
+        ></div>
+        <div
+          class="loader"
+          style="
+            width: 100%;
+            height: 20px;
+            background-color: gray;
+            border-radius: 5px;
+            opacity: 0.5;
+          "
+        ></div>
+      </div>
+
+      <ChannelChatsComponent v-else :chats="channelChats" />
     </section>
 
-    <!-- Right panels (плейсхолдеры) -->
-    <section class="panel q-pa-md"></section>
-    <section class="panel q-pa-md"></section>
+    <section
+      class="col"
+      style="
+        display: flex;
+        flex-direction: column;
+        background-color: #282b30;
+        justify-content: end;
+      "
+    >
+      <q-scroll-area class="chat-body">
+        <q-list padding class="q-gutter-y-sm">
+          <p>erer</p>
+          <!-- <MessageComponent v-for="m in messages" :key="m.id" :message="m" /> -->
+        </q-list>
+      </q-scroll-area>
+
+      <div class="chat-input row items-center q-px-md q-py-sm">
+        <q-input
+          v-model="message"
+          placeholder="Message #general"
+          dense
+          filled
+          input-class="text-white"
+          class="chat-input__field"
+          style="width: 100%"
+        />
+
+        <!-- <q-btn
+          unelevated
+          color="primary"
+          class="chat-input__send"
+          icon="send"
+        /> -->
+      </div>
+    </section>
+
+    <section>Right Side</section>
+
+    <BottomModal />
   </div>
 
-  <!-- Create channel dialog -->
   <q-dialog v-model="create.open" persistent>
     <q-card class="card--wide">
       <q-card-section class="card__title">Create channel</q-card-section>
@@ -74,7 +135,12 @@
       </q-card-section>
 
       <q-card-actions align="right" class="card__actions">
-        <q-btn label="Cancel" flat :disable="create.loading" @click="closeCreateDialog" />
+        <q-btn
+          label="Cancel"
+          flat
+          :disable="create.loading"
+          @click="closeCreateDialog"
+        />
         <q-btn
           label="Create"
           color="primary"
@@ -86,7 +152,6 @@
     </q-card>
   </q-dialog>
 
-  <!-- Add member dialog -->
   <q-dialog v-model="add.open" persistent>
     <q-card class="card--narrow">
       <q-card-section class="card__title">Add member</q-card-section>
@@ -105,7 +170,12 @@
       </q-card-section>
 
       <q-card-actions align="right" class="card__actions">
-        <q-btn label="Cancel" flat :disable="add.loading" @click="closeAddDialog" />
+        <q-btn
+          label="Cancel"
+          flat
+          :disable="add.loading"
+          @click="closeAddDialog"
+        />
         <q-btn
           label="Add"
           color="primary"
@@ -119,15 +189,23 @@
 </template>
 
 <script setup lang="ts">
+import ChannelChatsComponent from "src/components/ChannelChatsComponent.vue";
+
 import { ref, reactive, onMounted } from "vue";
+
 import ChannelComponent from "src/components/ChannelComponent.vue";
 import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
-import type { ChannelChatComponentProps } from "src/components/ChannelChatsComponent.vue";
+import type { Chat } from "src/components/ChannelChatsComponent.vue";
+import BottomModal from "src/components/BottomModal.vue";
+// import MessageComponent from "src/components/MessageComponent.vue";
 
 const API = "http://localhost:3333";
 
 const channels = ref<ChannelComponentProps[]>([]);
 const activeChannel = ref(channels.value[0]?.name ?? "");
+const channelChats = ref<Chat[]>([]);
+const message = ref("");
+const channelsLoading = ref(false);
 
 const create = reactive({
   open: false,
@@ -185,7 +263,9 @@ async function submitAddMember() {
 
     const res = await fetch(url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
     });
     const data = await res.json().catch(() => ({}));
 
@@ -256,28 +336,41 @@ async function submitCreate() {
 }
 
 onMounted(async () => {
-  try {
-    const res = await fetch(`${API}/api/channels/all/user`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
+  await fetch(`http://localhost:3333/api/channels/all/user`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data: ChannelComponentProps[]) => {
+      channels.value = data;
+      console.log(data);
+    })
+    .catch((err) => {
+      console.error(err);
     });
-    const data = (await res.json()) as ChannelComponentProps[];
-    channels.value = data;
-    activeChannel.value = channels.value[0]?.name ?? "";
-  } catch (err) {
-    console.error(err);
-  }
 });
 
-const chatsMap: Record<string, ChannelChatComponentProps> = {
-  "test 1": {
-    chats: [
-      { id: 1, name: "general" },
-      { id: 2, name: "random" },
-      { id: 3, name: "help" },
-    ],
-  },
-  "test 2": { chats: [{ id: 4, name: "news" }, { id: 5, name: "support" }] },
-  "test 3": { chats: [{ id: 6, name: "dev" }] },
+const onChannelClick = async (channelName: string, channelId: number) => {
+  activeChannel.value = channelName;
+  channelsLoading.value = true;
+
+  console.log("Channel clicked:", channelName, channelId);
+
+  await fetch(`http://localhost:3333/api/channels/chats/${channelId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data: Chat[]) => {
+      channelChats.value = data;
+      channelsLoading.value = false;
+      console.log(data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 };
 </script>
 
@@ -313,7 +406,9 @@ const chatsMap: Record<string, ChannelChatComponentProps> = {
   align-items: center;
   justify-content: space-between;
 }
-.add-member-btn { margin-left: 8px; }
+.add-member-btn {
+  margin-left: 8px;
+}
 
 .add-channel-btn {
   width: 50px;
@@ -321,9 +416,35 @@ const chatsMap: Record<string, ChannelChatComponentProps> = {
   border-radius: 10px;
 }
 
-.card--wide { min-width: 420px; }
-.card--narrow { min-width: 360px; }
-.card__title { font-size: 18px; font-weight: 600; }
-.card__body { display: flex; flex-direction: column; gap: 16px; }
-.card__actions { gap: 12px; }
+.loader {
+  width: 120px;
+  height: 20px;
+  background: linear-gradient(90deg, #0001 33%, #0005 50%, #0001 66%) #f2f2f2;
+  background-size: 300% 100%;
+  animation: l1 1s infinite linear;
+}
+@keyframes l1 {
+  0% {
+    background-position: right;
+  }
+}
+
+.card--wide {
+  min-width: 420px;
+}
+.card--narrow {
+  min-width: 360px;
+}
+.card__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card__actions {
+  gap: 12px;
+}
 </style>
