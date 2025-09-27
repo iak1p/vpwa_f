@@ -5,19 +5,31 @@
 
       <q-form novalidate @submit="onSubmit" class="login-form">
         <q-input
+          v-model="username"
+          label="Nickname"
+          outlined
+          hide-bottom-space
+          no-error-icon
+          :rules="[(val) => !!val]"
+          @focus="errorMessage = ''"
+        />
+
+        <q-input
           v-model="email"
           type="email"
           label="Email"
           outlined
           required
           :rules="[
-            (val) => !!val || 'Enter email',
+            (val) => !!val,
             (val) =>
               /.+@.+\..+/.test(val) ||
               `It should contains a symbol '@'. In email '${val}' it isnt.`,
           ]"
           hide-bottom-space
+          no-error-icon
           novalidate
+          @focus="errorMessage = ''"
         />
 
         <q-input
@@ -26,8 +38,9 @@
           label="Password"
           outlined
           required
-          :rules="[(val) => !!val || 'Enter password']"
+          :rules="[(val) => !!val]"
           hide-bottom-space
+          @focus="errorMessage = ''"
         >
           <template #append>
             <q-icon
@@ -38,6 +51,10 @@
           </template>
         </q-input>
 
+        <div v-if="errorMessage" class="full-row error-message">
+          {{ errorMessage }}
+        </div>
+
         <q-btn label="Sign in" type="submit" class="submit-btn full-width" />
         <!--color: "primary" -->
       </q-form>
@@ -47,14 +64,46 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
+const username = ref("");
 const email = ref("");
 const password = ref("");
 const showPwd = ref(false);
+const router = useRouter();
+const errorMessage = ref("");
 
-function onSubmit() {
-  console.log("Email:", email.value);
-  console.log("Password:", password.value);
+const API = "http://localhost:3333";
+
+async function onSubmit() {
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username.value,
+        email: email.value,
+        password: password.value,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Login failed");
+
+    const tokenStr: string | undefined = data?.token?.token;
+    if (!tokenStr) throw new Error("Token not returned by server");
+
+    localStorage.setItem("token", tokenStr);
+    // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
+
+    await router.push("/main");
+  } catch (err) {
+    if (err instanceof Error) {
+      errorMessage.value = err.message;
+    } else {
+      errorMessage.value = "Unknown error";
+    }
+  }
 }
 </script>
 
@@ -79,7 +128,10 @@ function onSubmit() {
 .login-card:hover {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
-
+.error-message {
+  color: red;
+  width: 100%;
+}
 h2 {
   font-size: 28px;
   margin: 0 0 40px 0;
