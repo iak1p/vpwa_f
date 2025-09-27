@@ -11,6 +11,7 @@
           hide-bottom-space
           no-error-icon
           :rules="[(val) => !!val]"
+          @focus="errorMessage = ''"
         />
 
         <q-input
@@ -28,6 +29,7 @@
           hide-bottom-space
           no-error-icon
           novalidate
+          @focus="errorMessage = ''"
         />
 
         <q-input
@@ -38,6 +40,7 @@
           required
           :rules="[(val) => !!val]"
           hide-bottom-space
+          @focus="errorMessage = ''"
         >
           <template #append>
             <q-icon
@@ -47,6 +50,10 @@
             />
           </template>
         </q-input>
+
+        <div v-if="errorMessage" class="full-row error-message">
+          {{ errorMessage }}
+        </div>
 
         <q-btn label="Sign in" type="submit" class="submit-btn full-width" />
         <!--color: "primary" -->
@@ -64,6 +71,7 @@ const email = ref("");
 const password = ref("");
 const showPwd = ref(false);
 const router = useRouter();
+const errorMessage = ref("");
 
 const API = "http://localhost:3333";
 
@@ -90,7 +98,11 @@ async function onSubmit() {
 
     await router.push("/main");
   } catch (err) {
-    console.error("Login error:", err);
+    if (err instanceof Error) {
+      errorMessage.value = err.message;
+    } else {
+      errorMessage.value = "Unknown error";
+    }
   }
 }
 </script>
@@ -116,7 +128,10 @@ async function onSubmit() {
 .login-card:hover {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
-
+.error-message {
+  color: red;
+  width: 100%;
+}
 h2 {
   font-size: 28px;
   margin: 0 0 40px 0;

@@ -33,6 +33,7 @@
           hide-bottom-space
           no-error-icon
           class="full-row"
+          @focus="errorMessage = ''"
         />
 
         <q-input
@@ -50,6 +51,7 @@
           hide-bottom-space
           novalidate
           class="full-row"
+          @focus="errorMessage = ''"
         />
 
         <q-input
@@ -72,6 +74,10 @@
           </template>
         </q-input>
 
+        <div v-if="errorMessage" class="full-row error-message">
+          {{ errorMessage }}
+        </div>
+        
         <q-btn
           :loading="loading"
           label="Create account"
@@ -94,6 +100,7 @@ const email = ref("");
 const password = ref("");
 const showPwd = ref(false);
 const loading = ref(false);
+const errorMessage = ref("");
 
 const API = `http://localhost:3333`;
 const router = useRouter();
@@ -131,8 +138,12 @@ async function onSubmit() {
     // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
     await router.push("/main");
-  } catch (err: unknown) {
-    console.error("Registration error:", err);
+  } catch (err) {
+    if (err instanceof Error) {
+      errorMessage.value = err.message;
+    } else {
+      errorMessage.value = "Unknown error";
+    }
   }
 }
 </script>
@@ -160,7 +171,10 @@ h2 {
 .signup-card:hover {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
-
+.error-message {
+  color: red;
+  width: 100%;
+}
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
