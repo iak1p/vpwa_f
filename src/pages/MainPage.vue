@@ -16,7 +16,7 @@
         @click="openCreateDialog"
       />
     </section>
-
+    
     <section
       class="col"
       style="background-color: #282b30; border-right: 1px solid #424549"
@@ -37,7 +37,7 @@
       <div
         v-if="channelsLoading"
         class="q-pa-md"
-        style="display: flex; gap: 5px; flex-direction: column;"
+        style="display: flex; gap: 5px; flex-direction: column"
       >
         <div
           class="loader"
@@ -103,6 +103,7 @@
     <section>Right Side</section>
 
     <BottomModal />
+
   </div>
 
   <q-dialog v-model="create.open" persistent>
@@ -203,8 +204,11 @@ const API = "http://localhost:3333";
 
 const channels = ref<ChannelComponentProps[]>([]);
 const activeChannel = ref(channels.value[0]?.name ?? "");
+
 const channelChats = ref<Chat[]>([]);
+
 const message = ref("");
+
 const channelsLoading = ref(false);
 
 const create = reactive({
@@ -335,6 +339,7 @@ async function submitCreate() {
   }
 }
 
+
 onMounted(async () => {
   await fetch(`http://localhost:3333/api/channels/all/user`, {
     headers: {
@@ -429,6 +434,19 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   }
 }
 
+.loader {
+  width: 120px;
+  height: 20px;
+  background: linear-gradient(90deg, #0001 33%, #0005 50%, #0001 66%) #f2f2f2;
+  background-size: 300% 100%;
+  animation: l1 1s infinite linear;
+}
+@keyframes l1 {
+  0% {
+    background-position: right;
+  }
+}
+
 .card--wide {
   min-width: 420px;
 }
@@ -447,4 +465,10 @@ const onChannelClick = async (channelName: string, channelId: number) => {
 .card__actions {
   gap: 12px;
 }
+.card--wide { min-width: 420px; }
+.card--narrow { min-width: 360px; }
+.card__title { font-size: 18px; font-weight: 600; }
+.card__body { display: flex; flex-direction: column; gap: 16px; }
+.card__actions { gap: 12px; }
+
 </style>
