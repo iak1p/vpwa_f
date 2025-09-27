@@ -1,6 +1,5 @@
 <template>
   <div class="app-grid">
-    <!-- Sidebar -->
     <section class="panel q-pa-md sidebar scroll-y">
       <ChannelComponent
         v-for="channel in channels"
@@ -17,6 +16,7 @@
         @click="openCreateDialog"
       />
     </section>
+    
     <section
       class="col"
       style="background-color: #282b30; border-right: 1px solid #424549"
@@ -100,25 +100,12 @@
       </div>
     </section>
 
-    <!-- <section class="q-pa-md col" style="background-color: #282b30">
-      Right Side
-    </section> -->
     <section>Right Side</section>
 
     <BottomModal />
 
-      <ChannelChatsComponent
-        v-bind="chatsMap[activeChannel] ?? { name: '', chats: [] }"
-      />
-    </section>
-
-    <!-- Right panels (плейсхолдеры) -->
-    <section class="panel q-pa-md"></section>
-    <section class="panel q-pa-md"></section>
-
   </div>
 
-  <!-- Create channel dialog -->
   <q-dialog v-model="create.open" persistent>
     <q-card class="card--wide">
       <q-card-section class="card__title">Create channel</q-card-section>
@@ -149,7 +136,12 @@
       </q-card-section>
 
       <q-card-actions align="right" class="card__actions">
-        <q-btn label="Cancel" flat :disable="create.loading" @click="closeCreateDialog" />
+        <q-btn
+          label="Cancel"
+          flat
+          :disable="create.loading"
+          @click="closeCreateDialog"
+        />
         <q-btn
           label="Create"
           color="primary"
@@ -161,7 +153,6 @@
     </q-card>
   </q-dialog>
 
-  <!-- Add member dialog -->
   <q-dialog v-model="add.open" persistent>
     <q-card class="card--narrow">
       <q-card-section class="card__title">Add member</q-card-section>
@@ -180,7 +171,12 @@
       </q-card-section>
 
       <q-card-actions align="right" class="card__actions">
-        <q-btn label="Cancel" flat :disable="add.loading" @click="closeAddDialog" />
+        <q-btn
+          label="Cancel"
+          flat
+          :disable="add.loading"
+          @click="closeAddDialog"
+        />
         <q-btn
           label="Add"
           color="primary"
@@ -271,7 +267,9 @@ async function submitAddMember() {
 
     const res = await fetch(url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
     });
     const data = await res.json().catch(() => ({}));
 
@@ -343,18 +341,20 @@ async function submitCreate() {
 
 
 onMounted(async () => {
-  try {
-    const res = await fetch(`${API}/api/channels/all/user`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
+  await fetch(`http://localhost:3333/api/channels/all/user`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data: ChannelComponentProps[]) => {
+      channels.value = data;
+      console.log(data);
+    })
+    .catch((err) => {
+      console.error(err);
     });
-    const data = (await res.json()) as ChannelComponentProps[];
-    channels.value = data;
-    activeChannel.value = channels.value[0]?.name ?? "";
-  } catch (err) {
-    console.error(err);
-  }
 });
-
 
 const onChannelClick = async (channelName: string, channelId: number) => {
   activeChannel.value = channelName;
@@ -411,7 +411,9 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   align-items: center;
   justify-content: space-between;
 }
-.add-member-btn { margin-left: 8px; }
+.add-member-btn {
+  margin-left: 8px;
+}
 
 .add-channel-btn {
   width: 50px;
@@ -432,6 +434,37 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   }
 }
 
+.loader {
+  width: 120px;
+  height: 20px;
+  background: linear-gradient(90deg, #0001 33%, #0005 50%, #0001 66%) #f2f2f2;
+  background-size: 300% 100%;
+  animation: l1 1s infinite linear;
+}
+@keyframes l1 {
+  0% {
+    background-position: right;
+  }
+}
+
+.card--wide {
+  min-width: 420px;
+}
+.card--narrow {
+  min-width: 360px;
+}
+.card__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card__actions {
+  gap: 12px;
+}
 .card--wide { min-width: 420px; }
 .card--narrow { min-width: 360px; }
 .card__title { font-size: 18px; font-weight: 600; }
