@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 export interface ChannelComponentProps {
+  id: number;
   name: string;
   color?: string;
   createdAt: string;
