@@ -16,42 +16,12 @@
       :submit-add-member="submitAddMember"
     />
 
-
-    <section
+    <ChatSection class="col" v-model:message="message" />
+    <!-- <ChatSection
       class="col"
-      style="
-        display: flex;
-        flex-direction: column;
-        background-color: #282b30;
-        justify-content: end;
-      "
-    >
-      <q-scroll-area class="chat-body">
-        <q-list padding class="q-gutter-y-sm">
-          <p>erer</p>
-          <!-- <MessageComponent v-for="m in messages" :key="m.id" :message="m" /> -->
-        </q-list>
-      </q-scroll-area>
-
-      <div class="chat-input row items-center q-px-md q-py-sm">
-        <q-input
-          v-model="message"
-          placeholder="Message #general"
-          dense
-          filled
-          input-class="text-white"
-          class="chat-input__field"
-          style="width: 100%"
-        />
-
-        <!-- <q-btn
-          unelevated
-          color="primary"
-          class="chat-input__send"
-          icon="send"
-        /> -->
-      </div>
-    </section>
+      :message="message"
+      @update:message="(val) => (message = val)"
+    /> -->
 
     <section>Right Side</section>
   </div>
@@ -66,6 +36,7 @@ import type { Chat } from "src/components/ChannelChatsComponent.vue";
 import BottomModal from "src/components/BottomModal.vue";
 import SectionChannels from "src/components/SectionChannels.vue";
 import SectionChats from "src/components/SectionChats.vue";
+import ChatSection from "src/components/ChatSection.vue";
 // import MessageComponent from "src/components/MessageComponent.vue";
 
 const API = "http://localhost:3333";
@@ -170,6 +141,7 @@ async function submitAddMember(add: any) {
     add.loading = false;
   }
 }
+
 onMounted(async () => {
   await fetch(`http://localhost:3333/api/channels/all/user`, {
     headers: {
