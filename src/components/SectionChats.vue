@@ -5,14 +5,14 @@
   >
     <div class="channel__header">
       <div>
-        <p>{{ activeChannel || "no chat selected" }}</p>
-        <p v-if="ownerLabel && activeChannel" class="channel__owner">
+        <p>{{ activeChannelName || "no chat selected" }}</p>
+        <p v-if="ownerLabel && activeChannelName" class="channel__owner">
           {{ ownerLabel }}
         </p>
       </div>
       <div>
         <q-btn
-          v-if="activeChannel"
+          v-if="activeChannelName"
           class="add-member-btn"
           icon="person_add"
           flat
@@ -22,7 +22,7 @@
         />
 
         <q-btn
-          v-if="activeChannel"
+          v-if="activeChannelName"
           class="q-ml-xs"
           icon="add_comment"
           flat
@@ -32,7 +32,7 @@
         />
 
         <q-btn
-          v-if="activeChannel"
+          v-if="activeChannelName"
           flat
           round
           dense
@@ -44,7 +44,7 @@
     </div>
 
     <div
-      v-if="channelsLoading"
+      v-if="chatsLoading"
       class="q-pa-md"
       style="
         display: flex;
@@ -75,11 +75,7 @@
       ></div>
     </div>
 
-    <ChannelChatsComponent
-      v-else
-      :chats="channelChats"
-      :activeChat="activeChat"
-    />
+    <ChannelChatsComponent v-else />
   </section>
 
   <q-dialog v-model="createChat.open" persistent>
@@ -156,31 +152,167 @@
 <script lang="ts" setup>
 import { reactive } from "vue";
 import ChannelChatsComponent from "./ChannelChatsComponent.vue";
-import type { Chat } from "./ChannelChatsComponent.vue";
+import { storeToRefs } from "pinia";
+
+import { useChatsStore } from "src/stores/chats";
+const chatsStore = useChatsStore();
+const { loading: chatsLoading } = storeToRefs(chatsStore);
+
+import { useChannelsStore } from "src/stores/channels";
+const channelsStore = useChannelsStore();
+const { activeChannelId, activeChannelName } = storeToRefs(channelsStore);
 
 export interface SectionChannelsProps {
-  activeChannel: string | null;
-  channelsLoading: boolean;
-  channelChats: Chat[];
-  activeChat: string | null;
-  onChannelClick: (channelName: string, channelId: number) => Promise<void>;
-  submitAddMember: (add: {
-    open: boolean;
-    loading: boolean;
-    username: string;
-    error: string;
-  }) => Promise<void>;
-  submitCreateChat: (createChat: {
-    open: boolean;
-    loading: boolean;
-    title: string;
-    error: string;
-  }) => Promise<void>;
-  onLeaveChannel: () => void | Promise<void>;
+  // onLeaveChannel: () => void | Promise<void>;
   ownerLabel: string | null;
 }
 
 defineProps<SectionChannelsProps>();
+
+async function submitAddMember(add: addProps) {
+  add.error = "";
+
+  if (!activeChannelName) {
+    add.error = "Select a channel first";
+    return;
+  }
+  if (!add.username.trim()) {
+    add.error = "Username is required";
+    return;
+  }
+
+  add.loading = true;
+  try {
+    const url = `http://localhost:3333/api/channels/${encodeURIComponent(
+      activeChannelName.value || ""
+    )}/members/${encodeURIComponent(add.username.trim())}`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      add.error =
+        data?.message ||
+        (res.status === 404
+          ? "Not found"
+          : res.status === 403
+          ? "Forbidden"
+          : res.status === 409
+          ? "User already in channel"
+          : "Failed to add member");
+      return;
+    }
+
+    add.open = false;
+  } catch (e) {
+    add.error = e instanceof Error ? e.message : "Network error";
+  } finally {
+    add.loading = false;
+  }
+}
+
+async function submitCreateChat(create: createProps) {
+  create.error = "";
+
+  if (!create.title?.trim()) {
+    create.error = "Title is required";
+    return;
+  }
+
+  // const ch = channels.value.find((c) => c.name === activeChannel.value);
+  // const ch = channels.find((c) => c.name === activeChannel.value);
+
+  if (!activeChannelId) {
+    create.error = "Channel ID not found";
+    return;
+  }
+
+  create.loading = true;
+  try {
+    const res = await fetch(
+      `http://localhost:3333/api/chats/create/${encodeURIComponent(
+        activeChannelId.value || ""
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify({ title: create.title.trim() }),
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      create.error =
+        data?.message ||
+        (res.status === 409
+          ? "Chat with this title already exists"
+          : "Failed to create chat");
+      return;
+    }
+
+    const newChat = data.chat;
+    chatsStore.addChat(newChat);
+    chatsStore.setActiveChat(newChat.title, newChat.id);
+
+    create.open = false;
+  } catch (e) {
+    create.error = e instanceof Error ? e.message : "Network error";
+  } finally {
+    create.loading = false;
+  }
+}
+
+async function onLeaveChannel() {
+  // const name = activeChannel.value;
+  if (!activeChannelName.value || !activeChannelId.value) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:3333/api/channels/${encodeURIComponent(
+        activeChannelName.value
+      )}/leave`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok)
+      throw new Error(data?.message || "Failed to leave/delete channel");
+
+    // channels.value = channels.value.filter((c) => c.name !== name);
+    channelsStore.removeChannel(activeChannelId.value);
+    // activeChannel.value = channels[0]?.name ?? "";
+    // channelChats.value = [];
+    // activeChat.value = "";
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+interface addProps {
+  open: boolean;
+  loading: boolean;
+  username: string;
+  error: string;
+}
+
+interface createProps {
+  open: boolean;
+  loading: boolean;
+  error: string;
+  title: string;
+}
 
 const add = reactive({
   open: false,
