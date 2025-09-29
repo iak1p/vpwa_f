@@ -4,16 +4,32 @@
     style="background-color: #282b30; border-right: 1px solid #424549"
   >
     <div class="channel__header">
-      <p>{{ activeChannel || "no chat selected" }}</p>
-      <q-btn
-        v-if="activeChannel"
-        class="add-member-btn"
-        icon="person_add"
-        flat
-        round
-        size="sm"
-        @click="openAddDialog"
-      />
+      <div>
+        <p>{{ activeChannel || "no chat selected" }}</p>
+        <p v-if="ownerLabel && activeChannel" class="channel__owner">
+          {{ ownerLabel }}
+        </p>
+      </div>
+      <div>
+        <q-btn
+          v-if="activeChannel"
+          class="add-member-btn"
+          icon="person_add"
+          flat
+          round
+          size="sm"
+          @click="openAddDialog"
+        />
+        <q-btn
+          v-if="activeChannel"
+          flat
+          round
+          dense
+          icon="logout"
+          class="text-negative"
+          @click="onLeaveChannel()"
+        />
+      </div>
     </div>
 
     <div
@@ -108,6 +124,8 @@ export interface SectionChannelsProps {
     username: string;
     error: string;
   }) => Promise<void>;
+  onLeaveChannel: () => void | Promise<void>;
+  ownerLabel: string | null;
 }
 
 defineProps<SectionChannelsProps>();
@@ -156,5 +174,20 @@ function closeAddDialog() {
   0% {
     background-position: right;
   }
+}
+.channel__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.channel__name {
+  margin: 0;
+  line-height: 1.1;
+}
+.channel__owner {
+  margin: 0;
+  font-size: 12px;
+  color: #ffffff;
+  opacity: 0.9;
 }
 </style>

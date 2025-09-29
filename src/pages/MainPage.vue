@@ -15,27 +15,27 @@
       :onChannelClick="onChannelClick"
       :submitAddMember="submitAddMember"
       :activeChat="activeChat"
+      :onLeaveChannel="leaveOrDeleteActiveChannel"
+      :owner-label="ownerLabel"
     />
 
-    <ChatSection
-      class="col"
-      v-model:message="message" 
-    />
+    <ChatSection class="col" v-model:message="message" />
 
     <section>Right Side</section>
   </div>
 
-  <BottomModal />
+  <BottomModal :on-logout="handleLogout" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
 import BottomModal from "src/components/BottomModal.vue";
 import SectionChannels from "src/components/SectionChannels.vue";
 import SectionChats from "src/components/SectionChats.vue";
 import ChatSection from "src/components/ChatSection.vue";
 import type { Chat } from "src/components/ChannelChatsComponent.vue";
+import { useRouter } from "vue-router";
 
 const API = "http://localhost:3333";
 const channels = ref<ChannelComponentProps[]>([]);
@@ -44,8 +44,18 @@ const activeChannel = ref(channels.value[0]?.name ?? "");
 const channelChats = ref<Chat[]>([]);
 const message = ref("");
 const channelsLoading = ref(false);
-
+const router = useRouter();
 const activeChat = ref(channelChats.value[0]?.title ?? "");
+
+const ownerLabel = computed<string | null>(() => {
+  const ch = channels.value.find(c => c.name === activeChannel.value);
+  const dn = ch?.owner?.displayName?.trim() || '';
+  const un = ch?.owner?.username?.trim() || '';
+
+  if (!dn && !un) return null;          
+  if (dn && un) return `${dn} (@${un})`;
+  return dn || `@${un}`;                
+});
 
 async function submitCreate(create: any) {
   create.error = "";
@@ -174,13 +184,93 @@ const onChannelClick = async (channelName: string, channelId: number) => {
 
       activeChat.value = data[0]?.title ?? "";
 
-      console.log(activeChat)
+      console.log(activeChat);
       console.log(data);
     })
     .catch((err) => {
       console.error(err);
     });
 };
+
+async function leaveOrDeleteActiveChannel() {
+  const name = activeChannel.value;
+  if (!name) return;
+
+  try {
+    const res = await fetch(
+      `${API}/api/channels/${encodeURIComponent(name)}/leave`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok)
+      throw new Error(data?.message || "Failed to leave/delete channel");
+
+    channels.value = channels.value.filter((c) => c.name !== name);
+    activeChannel.value = channels.value[0]?.name ?? "";
+    channelChats.value = [];
+    activeChat.value = "";
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// import { Dialog } from "quasar";
+
+// function leaveOrDeleteActiveChannel() {
+//   const name = activeChannel.value;
+//   if (!name) return;
+
+//   const channel = channels.value.find((c) => c.name === name);
+//   const isOwner = (channel as any)?.role === "owner"; // или как у вас хранится роль
+
+//   Dialog.create({
+//     title: "Подтверждение",
+//     message: isOwner
+//       ? `Вы владелец канала "${name}". При выходе он будет удалён.`
+//       : `Вы точно хотите выйти из канала "${name}"?`,
+//     persistent: true,
+//     ok: {
+//       label: isOwner ? "Удалить" : "Выйти",
+//       color: "negative",
+//     },
+//     cancel: { label: "Отмена" },
+//   }).onOk(() => {
+//     void (async () => {
+//       try {
+//         const res = await fetch(
+//           `${API}/api/channels/${encodeURIComponent(name)}/leave`,
+//           {
+//             method: "DELETE",
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+//             },
+//           }
+//         );
+
+//         const data = await res.json().catch(() => ({}));
+//         if (!res.ok)
+//           throw new Error(data?.message || "Failed to leave/delete channel");
+
+//         channels.value = channels.value.filter((c) => c.name !== name);
+//         activeChannel.value = channels.value[0]?.name ?? "";
+//         channelChats.value = [];
+//         activeChat.value = "";
+//       } catch (e) {
+//         console.error(e);
+//       }
+//     })();
+//   });
+// }
+
+async function handleLogout() {
+  localStorage.clear();
+  await router.replace("/login");
+}
 </script>
 
 <style>

@@ -31,7 +31,10 @@ export interface ChannelComponentProps {
 
 interface Owner {
   id: number;
-  name: string;
+  username: string;
+  firstName: string | null;
+  lastName: string | null;
+  displayName: string;
 }
 
 withDefaults(defineProps<ChannelComponentProps>(), {
