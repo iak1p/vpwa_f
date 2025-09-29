@@ -2,25 +2,29 @@
   <section class="channel">
     <ul class="channel__chat-list">
       <li
-        v-for="chat in props.chats"
+        v-for="chat in chats"
         :key="chat.id"
         class="channel__chat-item"
         role="button"
         tabindex="0"
       >
         <span class="channel__chat-icon" aria-hidden="true">#</span>
-        <p class="channel__chat-name">{{ chat.title }}</p>
+        <p
+          class="channel__chat-name"
+          :class="{ 'active': activeChat == chat.title }"
+        >
+          {{ chat.title }}
+        </p>
       </li>
     </ul>
   </section>
 </template>
 
 <script setup lang="ts">
-// import type { Chat } from "./models";
-
-// export interface ChannelChatComponentProps<> {
-//   chats: Chat[];
-// }
+interface Props {
+  chats: Chat[];
+  activeChat?: string | null;
+}
 
 export interface Chat {
   id: number;
@@ -31,9 +35,11 @@ export interface Chat {
   updatedAt: string;
 }
 
-const props = withDefaults(defineProps<{ chats: Chat[] }>(), {
-  chats: () => [],
-});
+defineProps<Props>();
+
+// const props = withDefaults(defineProps<{ chats: Chat[] }>(), {
+//   chats: () => [],
+// });
 </script>
 
 <style>
@@ -55,10 +61,21 @@ const props = withDefaults(defineProps<{ chats: Chat[] }>(), {
   cursor: pointer;
   font-size: 15px;
   user-select: none;
+  color: gray;
+}
+
+.channel__chat-item.active {
+  color: white;
+  background-color: #36393e;
+}
+
+.channel__chat-item.active .channel__chat-icon {
+  color: white;
 }
 
 .channel__chat-item:hover {
   background-color: #36393e;
+  color: white;
 }
 
 .channel__chat-icon {
