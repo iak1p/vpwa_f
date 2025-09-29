@@ -135,7 +135,7 @@ async function onSubmit() {
     if (!tokenStr) throw new Error("Token not returned from server");
 
     localStorage.setItem("token", tokenStr);
-    // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
+    localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
     await router.push("/main");
   } catch (err) {
