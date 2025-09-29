@@ -14,6 +14,7 @@
       :channelChats="channelChats"
       :onChannelClick="onChannelClick"
       :submitAddMember="submitAddMember"
+      :submitCreateChat="submitCreateChat"
       :activeChat="activeChat"
       :onLeaveChannel="leaveOrDeleteActiveChannel"
       :owner-label="ownerLabel"
@@ -48,13 +49,13 @@ const router = useRouter();
 const activeChat = ref(channelChats.value[0]?.title ?? "");
 
 const ownerLabel = computed<string | null>(() => {
-  const ch = channels.value.find(c => c.name === activeChannel.value);
-  const dn = ch?.owner?.displayName?.trim() || '';
-  const un = ch?.owner?.username?.trim() || '';
+  const ch = channels.value.find((c) => c.name === activeChannel.value);
+  const dn = ch?.owner?.displayName?.trim() || "";
+  const un = ch?.owner?.username?.trim() || "";
 
-  if (!dn && !un) return null;          
+  if (!dn && !un) return null;
   if (dn && un) return `${dn} (@${un})`;
-  return dn || `@${un}`;                
+  return dn || `@${un}`;
 });
 
 async function submitCreate(create: any) {
@@ -179,6 +180,7 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   })
     .then((res) => res.json())
     .then((data: Chat[]) => {
+      data.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       channelChats.value = data;
       channelsLoading.value = false;
 
@@ -216,6 +218,55 @@ async function leaveOrDeleteActiveChannel() {
     activeChat.value = "";
   } catch (e) {
     console.error(e);
+  }
+}
+async function submitCreateChat(create: any) {
+  create.error = "";
+
+  if (!create.title?.trim()) {
+    create.error = "Title is required";
+    return;
+  }
+
+  const ch = channels.value.find((c) => c.name === activeChannel.value);
+  if (!ch?.id) {
+    create.error = "Channel ID not found";
+    return;
+  }
+
+  create.loading = true;
+  try {
+    const res = await fetch(
+      `${API}/api/chats/create/${encodeURIComponent(ch.id)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify({ title: create.title.trim() }),
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      create.error =
+        data?.message ||
+        (res.status === 409
+          ? "Chat with this title already exists"
+          : "Failed to create chat");
+      return;
+    }
+
+    const newChat = data.chat;
+    channelChats.value = [newChat, ...channelChats.value];
+    activeChat.value = newChat?.title ?? activeChat.value;
+
+    create.open = false;
+  } catch (e) {
+    create.error = e instanceof Error ? e.message : "Network error";
+  } finally {
+    create.loading = false;
   }
 }
 

@@ -20,13 +20,24 @@
           size="sm"
           @click="openAddDialog"
         />
+
+        <q-btn
+          v-if="activeChannel"
+          class="q-ml-xs"
+          icon="add_comment"
+          flat
+          round
+          size="sm"
+          @click="openCreateChatDialog"
+        />
+
         <q-btn
           v-if="activeChannel"
           flat
           round
           dense
           icon="logout"
-          class="text-negative"
+          class="text-grey-4 q-ml-xs"
           @click="onLeaveChannel()"
         />
       </div>
@@ -70,6 +81,41 @@
       :activeChat="activeChat"
     />
   </section>
+
+  <q-dialog v-model="createChat.open" persistent>
+    <q-card class="card--narrow">
+      <q-card-section class="card__title">Create chat</q-card-section>
+
+      <q-card-section class="card__body">
+        <q-input
+          v-model="createChat.title"
+          label="Title"
+          outlined
+          :disable="createChat.loading"
+          :error="!!createChat.error"
+          :error-message="createChat.error"
+          @input="createChat.error = ''"
+          autofocus
+        />
+      </q-card-section>
+
+      <q-card-actions align="right" class="card__actions">
+        <q-btn
+          label="Cancel"
+          flat
+          :disable="createChat.loading"
+          @click="closeCreateChatDialog"
+        />
+        <q-btn
+          label="Create"
+          color="primary"
+          :loading="createChat.loading"
+          :disable="createChat.loading"
+          @click="() => submitCreateChat(createChat)"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 
   <q-dialog v-model="add.open" persistent>
     <q-card class="card--narrow">
@@ -124,6 +170,12 @@ export interface SectionChannelsProps {
     username: string;
     error: string;
   }) => Promise<void>;
+  submitCreateChat: (createChat: {
+    open: boolean;
+    loading: boolean;
+    title: string;
+    error: string;
+  }) => Promise<void>;
   onLeaveChannel: () => void | Promise<void>;
   ownerLabel: string | null;
 }
@@ -145,6 +197,23 @@ function openAddDialog() {
 
 function closeAddDialog() {
   if (!add.loading) add.open = false;
+}
+
+const createChat = reactive({
+  open: false,
+  loading: false,
+  title: "",
+  error: "" as string,
+});
+
+function openCreateChatDialog() {
+  createChat.open = true;
+  createChat.title = "";
+  createChat.error = "";
+}
+
+function closeCreateChatDialog() {
+  if (!createChat.loading) createChat.open = false;
 }
 </script>
 

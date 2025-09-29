@@ -11,7 +11,7 @@
           <div
             class="bm-avatar"
             @click="cycleStatus"
-            title="Нажми, чтобы сменить статус"
+            title="Нажми чтобы сменить свой пол"
           >
             <span>{{ initials }}</span>
             <span class="bm-status" :class="statusClass"></span>
@@ -38,7 +38,7 @@
             round
             dense
             icon="logout"
-            class="text-grey-4 q-ml-xs"
+            class="text-red-4 q-ml-xs"
             @click="onLogout()"
           />
         </q-item-section>
