@@ -5,14 +5,12 @@
         v-for="chat in chats"
         :key="chat.id"
         class="channel__chat-item"
+        :class="{ active: activeChat == chat.title }"
         role="button"
         tabindex="0"
       >
         <span class="channel__chat-icon" aria-hidden="true">#</span>
-        <p
-          class="channel__chat-name"
-          :class="{ 'active': activeChat == chat.title }"
-        >
+        <p class="channel__chat-name">
           {{ chat.title }}
         </p>
       </li>
@@ -51,6 +49,7 @@ defineProps<Props>();
   list-style: none;
   color: white;
   padding: 20px 20px 0 10px;
+  gap: 2px;
 }
 
 .channel__chat-item {

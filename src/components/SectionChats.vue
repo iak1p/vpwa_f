@@ -21,7 +21,7 @@
       class="q-pa-md"
       style="
         display: flex;
-        gap: 5px;
+        gap: 2px;
         flex-direction: column;
         padding: 20px 20px 0 10px;
       "
