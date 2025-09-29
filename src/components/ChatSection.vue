@@ -1,17 +1,11 @@
 <template>
   <section
-    class="col"
-    style="
-      display: flex;
-      flex-direction: column;
-      background-color: #282b30;
-      justify-content: end;
-    "
+    class="col column chat-section"
+    style="background:#282b30; border-right:1px solid #424549"
   >
-    <q-scroll-area class="chat-body">
+    <q-scroll-area class="chat-body col">
       <q-list padding class="q-gutter-y-sm">
-        <p>erer</p>
-        <!-- <MessageComponent v-for="m in messages" :key="m.id" :message="m" /> -->
+        <MessageComponent v-for="i in 1" :key="i" />
       </q-list>
     </q-scroll-area>
 
@@ -22,21 +16,15 @@
         dense
         filled
         input-class="text-white"
-        class="chat-input__field"
-        style="width: 100%"
+        class="chat-input__field col"
       />
-
-      <!-- <q-btn
-          unelevated
-          color="primary"
-          class="chat-input__send"
-          icon="send"
-        /> -->
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+import MessageComponent from "./MessageComponent.vue";
+
 // export interface SectionChannelsProps {
 //   message: string;
 // }
