@@ -9,19 +9,18 @@
 
     <SectionChats
       class="col"
-      :active-channel="activeChannel"
-      :channels-loading="channelsLoading"
-      :channel-chats="channelChats"
-      :on-channel-click="onChannelClick"
-      :submit-add-member="submitAddMember"
+      :activeChannel="activeChannel"
+      :channelsLoading="channelsLoading"
+      :channelChats="channelChats"
+      :onChannelClick="onChannelClick"
+      :submitAddMember="submitAddMember"
+      :activeChat="activeChat"
     />
 
-    <ChatSection class="col" v-model:message="message" />
-    <!-- <ChatSection
+    <ChatSection
       class="col"
-      :message="message"
-      @update:message="(val) => (message = val)"
-    /> -->
+      v-model:message="message" 
+    />
 
     <section>Right Side</section>
   </div>
@@ -32,23 +31,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import type { ChannelComponentProps } from "src/components/ChannelComponent.vue";
-import type { Chat } from "src/components/ChannelChatsComponent.vue";
 import BottomModal from "src/components/BottomModal.vue";
 import SectionChannels from "src/components/SectionChannels.vue";
 import SectionChats from "src/components/SectionChats.vue";
 import ChatSection from "src/components/ChatSection.vue";
-// import MessageComponent from "src/components/MessageComponent.vue";
+import type { Chat } from "src/components/ChannelChatsComponent.vue";
 
 const API = "http://localhost:3333";
-
 const channels = ref<ChannelComponentProps[]>([]);
 const activeChannel = ref(channels.value[0]?.name ?? "");
 
 const channelChats = ref<Chat[]>([]);
-
 const message = ref("");
-
 const channelsLoading = ref(false);
+
+const activeChat = ref(channelChats.value[0]?.title ?? "");
 
 async function submitCreate(create: any) {
   create.error = "";
@@ -174,6 +171,10 @@ const onChannelClick = async (channelName: string, channelId: number) => {
     .then((data: Chat[]) => {
       channelChats.value = data;
       channelsLoading.value = false;
+
+      activeChat.value = data[0]?.title ?? "";
+
+      console.log(activeChat)
       console.log(data);
     })
     .catch((err) => {
@@ -211,17 +212,5 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   width: 50px;
   height: 50px;
   border-radius: 10px;
-}
-
-.loader {
-  width: 120px;
-  background: linear-gradient(90deg, #0001 33%, #0005 50%, #0001 66%) #f2f2f2;
-  background-size: 300% 100%;
-  animation: l1 1s infinite linear;
-}
-@keyframes l1 {
-  0% {
-    background-position: right;
-  }
 }
 </style>

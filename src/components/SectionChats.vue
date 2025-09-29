@@ -48,7 +48,11 @@
       ></div>
     </div>
 
-    <ChannelChatsComponent v-else :chats="channelChats" />
+    <ChannelChatsComponent
+      v-else
+      :chats="channelChats"
+      :activeChat="activeChat"
+    />
   </section>
 
   <q-dialog v-model="add.open" persistent>
@@ -89,12 +93,14 @@
 
 <script lang="ts" setup>
 import { reactive } from "vue";
-import type { Chat } from "./models";
+import ChannelChatsComponent from "./ChannelChatsComponent.vue";
+import type { Chat } from "./ChannelChatsComponent.vue";
 
 export interface SectionChannelsProps {
   activeChannel: string | null;
   channelsLoading: boolean;
   channelChats: Chat[];
+  activeChat: string | null;
   onChannelClick: (channelName: string, channelId: number) => Promise<void>;
   submitAddMember: (add: {
     open: boolean;
@@ -103,6 +109,7 @@ export interface SectionChannelsProps {
     error: string;
   }) => Promise<void>;
 }
+
 defineProps<SectionChannelsProps>();
 
 const add = reactive({
@@ -117,10 +124,12 @@ function openAddDialog() {
   add.username = "";
   add.error = "";
 }
+
 function closeAddDialog() {
   if (!add.loading) add.open = false;
 }
 </script>
+
 <style>
 .channel__header {
   font-weight: bold;
@@ -135,5 +144,17 @@ function closeAddDialog() {
 }
 .add-member-btn {
   margin-left: 8px;
+}
+
+.loader {
+  width: 120px;
+  background: linear-gradient(90deg, #0001 33%, #0005 50%, #0001 66%) #f2f2f2;
+  background-size: 300% 100%;
+  animation: l1 1s infinite linear;
+}
+@keyframes l1 {
+  0% {
+    background-position: right;
+  }
 }
 </style>
