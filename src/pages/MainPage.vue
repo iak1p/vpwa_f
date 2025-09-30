@@ -25,7 +25,6 @@ const channelsStore = useChannelsStore();
 
 const message = ref("");
 const router = useRouter();
-
 const ownerLabel = ref<string | null>(null);
 
 // const ownerLabel = computed<string | null>(() => {

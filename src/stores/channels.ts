@@ -1,6 +1,9 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import type { Channel } from "src/components/models";
 import { getSocket } from "src/lib/socket"
+import { useUserStore } from "src/stores/user";
+const userStore = useUserStore();
+const { token } = storeToRefs(userStore);
 
 export const useChannelsStore = defineStore("channels", {
   state: () => ({
@@ -31,8 +34,11 @@ export const useChannelsStore = defineStore("channels", {
     async fetchChannels() {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/all/user`, {
+        // headers: {
+        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
+        // },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         },
       })
         .then((res) => res.json())
@@ -55,8 +61,8 @@ export const useChannelsStore = defineStore("channels", {
     },
     removeChannel(activeChannelId: number) {
       this.channels = this.channels.filter((c) => c.id !== activeChannelId);
-      this.activeChannelId = this.channels[0]?.id ?? null
-      this.activeChannelName = this.channels[0]?.name ?? null
+      this.activeChannelId = this.channels[0]?.id ?? null;
+      this.activeChannelName = this.channels[0]?.name ?? null;
     },
     setActiveChannel(channelId: number, channelName: string) {
       this.activeChannelId = channelId;

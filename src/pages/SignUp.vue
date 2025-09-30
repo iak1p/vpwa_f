@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "src/stores/user";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -101,6 +102,7 @@ const password = ref("");
 const showPwd = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
+const userStore = useUserStore();
 
 const API = `http://localhost:3333`;
 const router = useRouter();
@@ -134,9 +136,10 @@ async function onSubmit() {
     const tokenStr: string | undefined = data?.token?.token;
     if (!tokenStr) throw new Error("Token not returned from server");
 
-    localStorage.setItem("token", tokenStr);
-    localStorage.setItem("user", JSON.stringify(data?.user ?? null));
+    // localStorage.setItem("token", tokenStr);
+    // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
+    userStore.setSession(data.user, tokenStr); 
     await router.push("/main");
   } catch (err) {
     if (err instanceof Error) {

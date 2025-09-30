@@ -1,5 +1,8 @@
 import { defineStore, storeToRefs } from "pinia";
 import type { Chat } from "src/components/models";
+import { useUserStore } from "src/stores/user";
+const userStore = useUserStore();
+const { token } = storeToRefs(userStore);
 import { useChannelsStore } from "src/stores/channels";
 import { getSocket } from "src/lib/socket";
 
@@ -44,8 +47,11 @@ export const useChatsStore = defineStore("chats", {
     async fetchChats(channelId: number) {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/chats/${channelId}`, {
+        // headers: {
+        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
+        // },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         },
       })
         .then((res) => res.json())
