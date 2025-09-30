@@ -164,7 +164,7 @@ const { activeChannelId, activeChannelName } = storeToRefs(channelsStore);
 
 import { useUserStore } from "src/stores/user";
 const userStore = useUserStore();
-const { token } = storeToRefs(userStore);
+// const { token } = storeToRefs(userStore);
 
 export interface SectionChannelsProps {
   // onLeaveChannel: () => void | Promise<void>;
@@ -193,12 +193,12 @@ async function submitAddMember(add: addProps) {
 
     const res = await fetch(url, {
       method: "POST",
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-      //   },
-      headers: {
-        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
-      },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      // headers: {
+      //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+      // },
     });
     const data = await res.json().catch(() => ({}));
 
@@ -247,14 +247,14 @@ async function submitCreateChat(create: createProps) {
       )}`,
       {
         method: "POST",
-        // headers: {
-        //   "Content-Type": "application/json",
-        //   Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        // },
         headers: {
-          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
+        // headers: {
+        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+        //   "Content-Type": "application/json",
+        // },
         body: JSON.stringify({ title: create.title.trim() }),
       }
     );
@@ -292,12 +292,12 @@ async function onLeaveChannel() {
       )}/leave`,
       {
         method: "DELETE",
-        // headers: {
-        //   Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        // },
         headers: {
-          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
+        // headers: {
+        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+        // },
       }
     );
     const data = await res.json().catch(() => ({}));

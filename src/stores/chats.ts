@@ -1,8 +1,8 @@
 import { defineStore, storeToRefs } from "pinia";
 import type { Chat } from "src/components/models";
 import { useUserStore } from "src/stores/user";
-const userStore = useUserStore();
-const { token } = storeToRefs(userStore);
+// const userStore = useUserStore();
+// const { token } = storeToRefs(userStore);
 import { useChannelsStore } from "src/stores/channels";
 import { getSocket } from "src/lib/socket";
 
@@ -19,6 +19,9 @@ export const useChatsStore = defineStore("chats", {
       if (this.initedRealtime) return;
       this.initedRealtime = true;
 
+      const userStore = useUserStore();
+      const { id } = storeToRefs(userStore);
+
       const socket = getSocket();
 
       socket.off("chat:new");
@@ -26,8 +29,7 @@ export const useChatsStore = defineStore("chats", {
       socket.on(
         "chat:new",
         (channelId?: number, userId?: number, chat: Chat) => {
-
-          console.log("CHATTT:::NEEWWW")
+          console.log("CHATTT:::NEEWWW");
           const raw = localStorage.getItem("user");
           const userIdLocal = raw ? JSON.parse(raw).id : null;
 
@@ -38,7 +40,7 @@ export const useChatsStore = defineStore("chats", {
 
           if (!activeChannelId) return;
 
-          if (channelId == activeChannelId.value && userId != userIdLocal) {
+          if (channelId == activeChannelId.value && userId != id.value) {
             this.chats.unshift(chat);
           }
         }
@@ -47,12 +49,12 @@ export const useChatsStore = defineStore("chats", {
     async fetchChats(channelId: number) {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/chats/${channelId}`, {
-        // headers: {
-        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
-        // },
         headers: {
-          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        // headers: {
+        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+        // },
       })
         .then((res) => res.json())
         .then((data: Chat[]) => {

@@ -18,6 +18,19 @@ export const useUserStore = defineStore("user", {
     // user: null as User | null
   }),
   actions: {
+    async getUser() {
+      fetch("http://localhost:3333/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          this.id = data.id;
+          this.username = data.username;
+        });
+    },
     initFromStorage() {
       try {
         this.token = localStorage.getItem("token");
@@ -36,20 +49,20 @@ export const useUserStore = defineStore("user", {
       }
     },
     setSession(user: any, token: string) {
-      this.token    = token;
-      this.id       = user?.id ?? null;
+      this.token = token;
+      this.id = user?.id ?? null;
       this.username = user?.username ?? null;
-      this.name     = user?.name ?? null;
-      this.surname  = user?.surname ?? null;
-      this.email    = user?.email ?? null;
-      this.status   = user?.status ?? "online";
+      this.name = user?.name ?? null;
+      this.surname = user?.surname ?? null;
+      this.email = user?.email ?? null;
+      this.status = user?.status ?? "online";
       this.createdAt = user?.createdAt ? new Date(user.createdAt) : null;
       this.updatedAt = user?.updatedAt ? new Date(user.updatedAt) : null;
     },
     clearSession() {
       this.token = null;
       this.username = null;
-      this.status   = null;
+      this.status = null;
       this.id = null;
       this.name = null;
       this.surname = null;
