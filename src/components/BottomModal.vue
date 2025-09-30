@@ -48,76 +48,107 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "src/stores/user";
+import { computed} from "vue";
+
+const user = useUserStore()
+const { name, surname, username: usernameRef, status } = storeToRefs(user)
+
 
 export interface BottomModalProps {
   onLogout: () => void;
 }
 defineProps<BottomModalProps>();
 
-type Status = "online" | "dnd" | "offline";
+// type Status = "online" | "dnd" | "offline";
 
-function readUser() {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "{}");
-  } catch {
-    return {};
-  }
-}
-function writeUser(u: string) {
-  localStorage.setItem("user", JSON.stringify(u));
-}
+// function readUser() {
+//   try {
+//     return JSON.parse(localStorage.getItem("user") || "{}");
+//   } catch {
+//     return {};
+//   }
+// }
+// function writeUser(u: string) {
+//   localStorage.setItem("user", JSON.stringify(u));
+// }
 
-const user = ref(readUser());
+// const user = ref(readUser());
+// const displayName = computed((): string => {
+//   const name = (user.value?.name ?? "").trim();
+//   const surname = (user.value?.surname ?? "").trim();
+//   if (name || surname) return [name, surname].filter(Boolean).join(" ");
+//   return "User";
+// });
+// const username = computed((): string => {
+//   return user.value?.username ?? "user";
+// });
+// const initials = computed((): string => {
+//   const parts = displayName.value.split(" ").filter(Boolean);
+//   const a = (parts[0]?.[0] ?? "U").toUpperCase();
+//   const b = (parts[1]?.[0] ?? "").toUpperCase();
+//   return a + b || "U";
+// });
+// function isStatus(s: unknown): s is Status {
+//   return s === "online" || s === "dnd" || s === "offline";
+// }
+// const status = ref<Status>(
+//   isStatus(user.value?.status) ? user.value.status : "online"
+// );
+
+// const statusClass = computed<string>(() =>
+//   status.value === "online"
+//     ? "is-online"
+//     : status.value === "dnd"
+//     ? "is-away"
+//     : "is-offline"
+// );
+
+// function setStatus(s: Status) {
+//   status.value = s;
+//   user.value = { ...user.value, status: s };
+//   writeUser(user.value);
+// }
+
+// function cycleStatus() {
+//   setStatus(
+//     status.value === "online"
+//       ? "dnd"
+//       : status.value === "dnd"
+//       ? "offline"
+//       : "online"
+//   );
+// }
+
+
+
 
 const displayName = computed((): string => {
-  const name = (user.value?.name ?? "").trim();
-  const surname = (user.value?.surname ?? "").trim();
-  if (name || surname) return [name, surname].filter(Boolean).join(" ");
-  return "User";
-});
+  const n = (name.value ?? "").trim()
+  const s = (surname.value ?? "").trim()
+  return (n || s) ? [n, s].filter(Boolean).join(" ") : "User"
+})
 
-const username = computed((): string => {
-  return user.value?.username ?? "user";
-});
+const username = computed((): string => usernameRef.value ?? "user")
 
 const initials = computed((): string => {
-  const parts = displayName.value.split(" ").filter(Boolean);
-  const a = (parts[0]?.[0] ?? "U").toUpperCase();
-  const b = (parts[1]?.[0] ?? "").toUpperCase();
-  return a + b || "U";
-});
-
-function isStatus(s: unknown): s is Status {
-  return s === "online" || s === "dnd" || s === "offline";
-}
-const status = ref<Status>(
-  isStatus(user.value?.status) ? user.value.status : "online"
-);
-
-const statusClass = computed<string>(() =>
-  status.value === "online"
-    ? "is-online"
-    : status.value === "dnd"
-    ? "is-away"
-    : "is-offline"
-);
-
-function setStatus(s: Status) {
-  status.value = s;
-  user.value = { ...user.value, status: s };
-  writeUser(user.value);
-}
-
+  const parts = displayName.value.split(" ").filter(Boolean)
+  const a = (parts[0]?.[0] ?? "U").toUpperCase()
+  const b = (parts[1]?.[0] ?? "").toUpperCase()
+  return (a + b) || "U"
+})
+const statusClass = computed((): string => {
+  return status.value === "online" ? "is-online"
+       : status.value === "dnd"    ? "is-away"
+       :                              "is-offline"
+})
 function cycleStatus() {
-  setStatus(
-    status.value === "online"
-      ? "dnd"
-      : status.value === "dnd"
-      ? "offline"
-      : "online"
-  );
+  const cur = status.value
+  const next = cur === "online" ? "dnd" : cur === "dnd" ? "offline" : "online"
+  user.setStatus(next)
 }
+
 </script>
 
 <style scoped>
