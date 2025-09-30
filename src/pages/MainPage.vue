@@ -20,6 +20,8 @@ import SectionChats from "src/components/SectionChats.vue";
 import ChatSection from "src/components/ChatSection.vue";
 import { useRouter } from "vue-router";
 import { useChannelsStore } from "src/stores/channels";
+import { useUserStore } from "src/stores/user";
+const userStore = useUserStore();
 
 const channelsStore = useChannelsStore();
 
@@ -39,6 +41,7 @@ const ownerLabel = ref<string | null>(null);
 
 onMounted(async () => {
   await channelsStore.fetchChannels();
+  await userStore.getUser();
 });
 
 async function handleLogout() {
@@ -63,9 +66,8 @@ async function handleLogout() {
 
 // // console.log("SOCKKKEKEKKEKE", socket)
 
-
 // socket.on("channel:new", (channel, userId) => {
-  
+
 //   const local = JSON.parse(localStorage.getItem("user"));
 //   const userIdLocal = local.id;
 //   console.log("User IDDDDD", userId, userIdLocal)

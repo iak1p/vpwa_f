@@ -79,7 +79,7 @@ const chatsStore = useChatsStore();
 
 import { useUserStore } from "src/stores/user";
 const userStore = useUserStore();
-const { token } = storeToRefs(userStore);
+// const { token } = storeToRefs(userStore);
 
 // export interface SectionChannelsProps {
 
@@ -106,14 +106,14 @@ async function submitCreateChannel() {
   try {
     const res = await fetch(`http://localhost:3333/api/channels/create`, {
       method: "POST",
-      // headers: {
-      //   "Content-Type": "application/json",
-      //   Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-      // },
       headers: {
-        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
       },
+      // headers: {
+      //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+      //   "Content-Type": "application/json",
+      // },
       body: JSON.stringify({
         name: create.name.trim(),
         description: create.description.trim() || null,

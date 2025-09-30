@@ -2,8 +2,8 @@ import { defineStore, storeToRefs } from "pinia";
 import type { Channel } from "src/components/models";
 import { getSocket } from "src/lib/socket"
 import { useUserStore } from "src/stores/user";
-const userStore = useUserStore();
-const { token } = storeToRefs(userStore);
+// const userStore = useUserStore();
+// const { token } = storeToRefs(userStore);
 
 export const useChannelsStore = defineStore("channels", {
   state: () => ({
@@ -18,6 +18,9 @@ export const useChannelsStore = defineStore("channels", {
       if (this.initedRealtime) return
       this.initedRealtime = true
 
+      const userStore = useUserStore();
+      const { id } = storeToRefs(userStore);
+
       const socket = getSocket()
 
       socket.off('channel:new')
@@ -26,7 +29,7 @@ export const useChannelsStore = defineStore("channels", {
         const raw = localStorage.getItem('user')
         const userIdLocal = raw ? JSON.parse(raw).id : null
 
-        if (userId && userIdLocal !== userId) return
+        if (userId && id.value !== userId) return
 
         this.channels.unshift(channel)
       })
@@ -34,12 +37,12 @@ export const useChannelsStore = defineStore("channels", {
     async fetchChannels() {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/all/user`, {
-        // headers: {
-        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
-        // },
         headers: {
-          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        // headers: {
+        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+        // },
       })
         .then((res) => res.json())
         .then((data: Channel[]) => {

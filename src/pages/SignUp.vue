@@ -136,7 +136,7 @@ async function onSubmit() {
     const tokenStr: string | undefined = data?.token?.token;
     if (!tokenStr) throw new Error("Token not returned from server");
 
-    // localStorage.setItem("token", tokenStr);
+    localStorage.setItem("token", tokenStr);
     // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
     userStore.setSession(data.user, tokenStr); 
