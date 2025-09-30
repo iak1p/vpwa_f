@@ -3,6 +3,8 @@ import type { Chat } from "src/components/models";
 import { useUserStore } from "src/stores/user";
 const userStore = useUserStore();
 const { token } = storeToRefs(userStore);
+import { useChannelsStore } from "src/stores/channels";
+import { getSocket } from "src/lib/socket";
 
 export const useChatsStore = defineStore("chats", {
   state: () => ({
@@ -10,8 +12,38 @@ export const useChatsStore = defineStore("chats", {
     loading: false,
     activeChatId: null as number | null,
     activeChatName: null as string | null,
+    initedRealtime: false,
   }),
   actions: {
+    initRealtime() {
+      if (this.initedRealtime) return;
+      this.initedRealtime = true;
+
+      const socket = getSocket();
+
+      socket.off("chat:new");
+
+      socket.on(
+        "chat:new",
+        (channelId?: number, userId?: number, chat: Chat) => {
+
+          console.log("CHATTT:::NEEWWW")
+          const raw = localStorage.getItem("user");
+          const userIdLocal = raw ? JSON.parse(raw).id : null;
+
+          // if (userId && userIdLocal !== userId) return;
+
+          const channelsStore = useChannelsStore();
+          const { channels, activeChannelId } = storeToRefs(channelsStore);
+
+          if (!activeChannelId) return;
+
+          if (channelId == activeChannelId.value && userId != userIdLocal) {
+            this.chats.unshift(chat);
+          }
+        }
+      );
+    },
     async fetchChats(channelId: number) {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/chats/${channelId}`, {

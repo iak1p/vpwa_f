@@ -90,7 +90,7 @@ const { token } = storeToRefs(userStore);
 const onChannelClick = async (channelName: string, channelId: number) => {
   console.log("Channel clicked:", channelName, channelId);
   await chatsStore.fetchChats(channelId);
-  await channelsStore.setActiveChannel(channelId, channelName);
+  channelsStore.setActiveChannel(channelId, channelName);
 };
 
 async function submitCreateChannel() {
@@ -132,8 +132,8 @@ async function submitCreateChannel() {
     }
 
     const created = data.channel;
-    await channelsStore.addChannel(created);
-    await channelsStore.setActiveChannel(created.id, created.name);
+    channelsStore.addChannel(created);
+    channelsStore.setActiveChannel(created.id, created.name)
     create.open = false;
   } catch (e) {
     create.error = e instanceof Error ? e.message : "Network error";

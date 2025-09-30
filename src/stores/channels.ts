@@ -1,5 +1,6 @@
 import { defineStore, storeToRefs } from "pinia";
 import type { Channel } from "src/components/models";
+import { getSocket } from "src/lib/socket"
 import { useUserStore } from "src/stores/user";
 const userStore = useUserStore();
 const { token } = storeToRefs(userStore);
@@ -10,8 +11,26 @@ export const useChannelsStore = defineStore("channels", {
     loading: false,
     activeChannelId: null as number | null,
     activeChannelName: null as string | null,
+    initedRealtime: false,
   }),
   actions: {
+    initRealtime() {
+      if (this.initedRealtime) return
+      this.initedRealtime = true
+
+      const socket = getSocket()
+
+      socket.off('channel:new')
+
+      socket.on('channel:new', (channel: Channel, userId?: number) => {
+        const raw = localStorage.getItem('user')
+        const userIdLocal = raw ? JSON.parse(raw).id : null
+
+        if (userId && userIdLocal !== userId) return
+
+        this.channels.unshift(channel)
+      })
+    },
     async fetchChannels() {
       this.loading = true;
       await fetch(`http://localhost:3333/api/channels/all/user`, {

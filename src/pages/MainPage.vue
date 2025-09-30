@@ -46,30 +46,35 @@ async function handleLogout() {
   await router.replace("/login");
 }
 
-import { io as ioc } from "socket.io-client";
+// import { io as ioc } from "socket.io-client";
 
-const socket = ioc("http://localhost:3333", {
-  auth: { token: localStorage.getItem("token") || "" },
-});
+// const socket = ioc("http://localhost:3333", {
+//   auth: { token: localStorage.getItem("token") || "" },
+// });
 
-socket.on("connect", () => {
-  const local = JSON.parse(localStorage.getItem("user") || "");
-  const userId = local.id;
-  socket.emit("auth:hello", userId);
-  // socket.emit('org:subscribe', orgId)
-});
+// socket.on("connect", () => {
+//   const local = JSON.parse(localStorage.getItem("user"));
+//   const userId = local.id;
+//   socket.emit("auth:hello", userId);
+//   // socket.emit('org:subscribe', orgId)
+// });
 
-socket.on("channel:new", (channel, userId) => {
+// const socket = getSocket();
+
+// // console.log("SOCKKKEKEKKEKE", socket)
+
+
+// socket.on("channel:new", (channel, userId) => {
   
-  const local = JSON.parse(localStorage.getItem("user") || "");
-  const userIdLocal = local.id;
-  console.log("User IDDDDD", userId, userIdLocal)
-  console.log(channel);
-
-  if (userIdLocal == userId) channelsStore.addChannel(channel);
-  // если нужно — сразу сделать активным:
-  // channelsStore.activeChannelId = channel.id
-});
+//   const local = JSON.parse(localStorage.getItem("user"));
+//   const userIdLocal = local.id;
+//   console.log("User IDDDDD", userId, userIdLocal)
+//   console.log(channel);
+//   // добавим новый канал в начало списка
+//   if (userIdLocal == userId) channelsStore.addChannel(channel);
+//   // если нужно — сразу сделать активным:
+//   // channelsStore.activeChannelId = channel.id
+// });
 </script>
 
 <style>
