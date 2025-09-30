@@ -25,7 +25,6 @@ const channelsStore = useChannelsStore();
 
 const message = ref("");
 const router = useRouter();
-
 const ownerLabel = ref<string | null>(null);
 
 // const ownerLabel = computed<string | null>(() => {
@@ -54,7 +53,7 @@ const socket = ioc("http://localhost:3333", {
 });
 
 socket.on("connect", () => {
-  const local = JSON.parse(localStorage.getItem("user"));
+  const local = JSON.parse(localStorage.getItem("user") || "");
   const userId = local.id;
   socket.emit("auth:hello", userId);
   // socket.emit('org:subscribe', orgId)
@@ -62,11 +61,11 @@ socket.on("connect", () => {
 
 socket.on("channel:new", (channel, userId) => {
   
-  const local = JSON.parse(localStorage.getItem("user"));
+  const local = JSON.parse(localStorage.getItem("user") || "");
   const userIdLocal = local.id;
   console.log("User IDDDDD", userId, userIdLocal)
   console.log(channel);
-  // добавим новый канал в начало списка
+
   if (userIdLocal == userId) channelsStore.addChannel(channel);
   // если нужно — сразу сделать активным:
   // channelsStore.activeChannelId = channel.id

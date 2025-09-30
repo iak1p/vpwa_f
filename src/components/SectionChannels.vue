@@ -77,6 +77,10 @@ const { channels, activeChannelId } = storeToRefs(channelsStore);
 import { useChatsStore } from "src/stores/chats";
 const chatsStore = useChatsStore();
 
+import { useUserStore } from "src/stores/user";
+const userStore = useUserStore();
+const { token } = storeToRefs(userStore);
+
 // export interface SectionChannelsProps {
 
 // }
@@ -102,9 +106,13 @@ async function submitCreateChannel() {
   try {
     const res = await fetch(`http://localhost:3333/api/channels/create`, {
       method: "POST",
+      // headers: {
+      //   "Content-Type": "application/json",
+      //   Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      // },
       headers: {
+        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
       },
       body: JSON.stringify({
         name: create.name.trim(),
@@ -125,7 +133,7 @@ async function submitCreateChannel() {
 
     const created = data.channel;
     await channelsStore.addChannel(created);
-    await channelsStore.setActiveChannel(created.id, created.name)
+    await channelsStore.setActiveChannel(created.id, created.name);
     create.open = false;
   } catch (e) {
     create.error = e instanceof Error ? e.message : "Network error";
