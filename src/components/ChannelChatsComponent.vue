@@ -5,9 +5,10 @@
         v-for="chat in chats"
         :key="chat.id"
         class="channel__chat-item"
-        :class="{ active: activeChat == chat.title }"
+        :class="{ active: activeChatId == chat.id }"
         role="button"
         tabindex="0"
+        @click="onChatClicked(chat.title, chat.id)"
       >
         <span class="channel__chat-icon" aria-hidden="true">#</span>
         <p class="channel__chat-name">
@@ -19,25 +20,21 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
-  chats: Chat[];
-  activeChat?: string | null;
-}
+import { storeToRefs } from "pinia";
 
-export interface Chat {
-  id: number;
-  title: string;
-  lastMessageId: number | null;
-  ownerId: number;
-  createdAt: string;
-  updatedAt: string;
-}
+// interface Props {}
 
-defineProps<Props>();
+import { useChatsStore } from "src/stores/chats";
+const chatsStore = useChatsStore();
 
-// const props = withDefaults(defineProps<{ chats: Chat[] }>(), {
-//   chats: () => [],
-// });
+const { chats, activeChatId } = storeToRefs(chatsStore);
+
+// defineProps<Props>();
+
+const onChatClicked = (chatName: string, chatId: number) => {
+  console.log("Chat clicked:", chatName, chatId);
+  chatsStore.setActiveChat(chatName, chatId);
+};
 </script>
 
 <style>

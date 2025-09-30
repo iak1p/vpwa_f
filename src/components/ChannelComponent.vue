@@ -1,12 +1,12 @@
 <template>
   <div
     class="channel-icon"
-    :style="{ backgroundColor: color }"
+    :style="{ backgroundColor: prorps.color }"
     :class="{ 'channel-icon--active': active }"
   >
     <span class="channel-icon__letters">
       {{
-        name
+        prorps.channel.name
           .split(" ")
           .filter(Boolean)
           .map((word) => word[0])
@@ -18,29 +18,28 @@
 </template>
 
 <script setup lang="ts">
+import type { Channel } from "./models";
+
 export interface ChannelComponentProps {
-  id: number;
-  name: string;
-  color?: string;
-  createdAt: string;
-  isPrivate: boolean;
-  ownerId: number;
-  owner: Owner;
+  channel: Channel;
   active?: boolean;
+  color?: string;
 }
 
-interface Owner {
-  id: number;
-  username: string;
-  firstName: string | null;
-  lastName: string | null;
-  displayName: string;
-}
+// interface Owner {
+//   id: number;
+//   username: string;
+//   firstName: string | null;
+//   lastName: string | null;
+//   displayName: string;
+// }
 
-withDefaults(defineProps<ChannelComponentProps>(), {
+const prorps = withDefaults(defineProps<ChannelComponentProps>(), {
   color: "#26A69A",
   active: false,
 });
+
+console.log("PRORPS", prorps);
 </script>
 
 <style scoped>

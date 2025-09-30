@@ -3,8 +3,9 @@
     <ChannelComponent
       v-for="channel in channels"
       :key="channel.name"
-      v-bind="channel"
-      :active="activeChannel === channel.name"
+      :channel="channel"
+      :active="activeChannelId === channel.id"
+      :color="'#26A69A'"
       @click="onChannelClick(channel.name, channel.id)"
     />
     <q-btn
@@ -57,7 +58,7 @@
           color="primary"
           :loading="create.loading"
           :disable="create.loading"
-          @click="submitCreate(create)"
+          @click="submitCreateChannel()"
         />
       </q-card-actions>
     </q-card>
@@ -67,16 +68,71 @@
 <script lang="ts" setup>
 import { reactive } from "vue";
 import ChannelComponent from "./ChannelComponent.vue";
-import type { ChannelComponentProps } from "./ChannelComponent.vue";
+import { storeToRefs } from "pinia";
 
-export interface SectionChannelsProps {
-  channels: ChannelComponentProps[];
-  activeChannel: string | null;
-  onChannelClick: (channelName: string, channelId: number) => Promise<void>;
-  submitCreate: (create: any) => Promise<void>;
+import { useChannelsStore } from "src/stores/channels";
+const channelsStore = useChannelsStore();
+const { channels, activeChannelId } = storeToRefs(channelsStore);
+
+import { useChatsStore } from "src/stores/chats";
+const chatsStore = useChatsStore();
+
+// export interface SectionChannelsProps {
+
+// }
+
+// defineProps<SectionChannelsProps>();
+
+const onChannelClick = async (channelName: string, channelId: number) => {
+  console.log("Channel clicked:", channelName, channelId);
+  await chatsStore.fetchChats(channelId);
+  await channelsStore.setActiveChannel(channelId, channelName);
+};
+
+async function submitCreateChannel() {
+  create.error = "";
+
+  if (!create.name.trim()) {
+    create.error = "Name is required";
+    return;
+  }
+
+  create.loading = true;
+
+  try {
+    const res = await fetch(`http://localhost:3333/api/channels/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
+      body: JSON.stringify({
+        name: create.name.trim(),
+        description: create.description.trim() || null,
+        is_private: !!create.isPrivate,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      create.error =
+        data?.message ||
+        (res.status === 409
+          ? "Channel with this name already exists"
+          : "Failed to create channel");
+      return;
+    }
+
+    const created = data.channel;
+    await channelsStore.addChannel(created);
+    await channelsStore.setActiveChannel(created.id, created.name)
+    create.open = false;
+  } catch (e) {
+    create.error = e instanceof Error ? e.message : "Network error";
+  } finally {
+    create.loading = false;
+  }
 }
-
-defineProps<SectionChannelsProps>();
 
 const create = reactive({
   open: false,

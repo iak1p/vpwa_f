@@ -34,8 +34,6 @@
 <script setup lang="ts"></script>
 
 <style>
-.username {
-}
 .date {
   color: gray;
   font-size: 12px;

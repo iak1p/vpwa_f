@@ -46,6 +46,7 @@
     </q-card>
   </div>
 </template>
+
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 
@@ -63,7 +64,7 @@ function readUser() {
     return {};
   }
 }
-function writeUser(u: any) {
+function writeUser(u: string) {
   localStorage.setItem("user", JSON.stringify(u));
 }
 
