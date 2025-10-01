@@ -6,7 +6,7 @@
 
     <ChatSection class="col" v-model:message="message" />
 
-    <section>Right Side</section>
+    <section>Right Side <MembersList class="col" /></section>
   </div>
 
   <BottomModal :on-logout="handleLogout" />
@@ -21,6 +21,7 @@ import ChatSection from "src/components/ChatSection.vue";
 import { useRouter } from "vue-router";
 import { useChannelsStore } from "src/stores/channels";
 import { useUserStore } from "src/stores/user";
+import MembersList from "src/components/MembersList.vue";
 const userStore = useUserStore();
 
 const channelsStore = useChannelsStore();
