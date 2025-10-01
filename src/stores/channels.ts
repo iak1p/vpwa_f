@@ -11,7 +11,9 @@ export const useChannelsStore = defineStore("channels", {
     loading: false,
     activeChannelId: null as number | null,
     activeChannelName: null as string | null,
+    activeChannel: null as Channel | null,
     initedRealtime: false,
+    owner: {} as any
   }),
   actions: {
     initRealtime() {
@@ -32,6 +34,8 @@ export const useChannelsStore = defineStore("channels", {
         if (userId && id.value !== userId) return
 
         this.channels.unshift(channel)
+        console.log("CHAHHAHAHAHH", channel)
+        this.owner = channel.owner
       })
     },
     async fetchChannels() {
@@ -51,6 +55,8 @@ export const useChannelsStore = defineStore("channels", {
           this.channels = data;
           this.activeChannelId = data[0]?.id ?? null;
           this.activeChannelName = data[0]?.name ?? null;
+          this.activeChannel = data[0] ?? null;
+          this.owner = data[0]?.owner ?? null;
           this.loading = false;
 
           console.log("FETCHED DATA", data);
@@ -61,15 +67,20 @@ export const useChannelsStore = defineStore("channels", {
     },
     addChannel(channel: Channel) {
       this.channels.unshift(channel);
+      this.owner = channel.owner;
     },
     removeChannel(activeChannelId: number) {
       this.channels = this.channels.filter((c) => c.id !== activeChannelId);
       this.activeChannelId = this.channels[0]?.id ?? null;
       this.activeChannelName = this.channels[0]?.name ?? null;
+      this.activeChannel = this.channels[0] ?? null;
+      this.owner = this.channels[0]?.owner ?? null;
     },
     setActiveChannel(channelId: number, channelName: string) {
       this.activeChannelId = channelId;
       this.activeChannelName = channelName;
+      this.activeChannel = this.channels.find((channel) => channel.id == channelId) ?? null;
+      this.owner = this.channels.find((channel) => channel.id == channelId)?.owner
     },
   },
 });

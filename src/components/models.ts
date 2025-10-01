@@ -17,7 +17,7 @@ export interface Channel {
   name: string;
   description: string | null;
   isPrivate: boolean;
-  // owner: Owner;
+  owner: any;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,4 +29,22 @@ export interface Chat {
   ownerId: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Sender {
+  username: string;
+  name: string;
+  surname: string;
+  status: string;
+  id: number;
+}
+
+export interface Message {
+  id: number;
+  content: string;
+  senderId: number;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  sender: Sender;
 }

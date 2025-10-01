@@ -25,15 +25,20 @@ import { storeToRefs } from "pinia";
 // interface Props {}
 
 import { useChatsStore } from "src/stores/chats";
+import { useMessagesStore } from "src/stores/messages";
 const chatsStore = useChatsStore();
 
 const { chats, activeChatId } = storeToRefs(chatsStore);
+
+const messagesStore = useMessagesStore();
 
 // defineProps<Props>();
 
 const onChatClicked = (chatName: string, chatId: number) => {
   console.log("Chat clicked:", chatName, chatId);
   chatsStore.setActiveChat(chatName, chatId);
+
+  if (activeChatId.value) messagesStore.fetchMessages(activeChatId.value);
 };
 </script>
 

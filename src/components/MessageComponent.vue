@@ -1,5 +1,37 @@
 <template>
   <div class="col message">
+    <div class="user-photo">
+      {{
+        message.sender.username
+          .split(" ")
+          .filter(Boolean)
+          .map((word) => word[0])
+          .join("")
+          .toUpperCase()
+      }}
+    </div>
+    <div class="">
+      <div class="row" style="align-items: center; gap: 10px">
+        <p class="username">{{ message.sender.username }}</p>
+        <p class="date">
+          {{
+            new Date(message.createdAt).toLocaleDateString("de-DE", {
+              year: "2-digit",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          }}
+        </p>
+      </div>
+      <p class="message-content">
+        {{ message.content }}
+      </p>
+    </div>
+  </div>
+  <!-- Надо для сообщений в которых человек был пингнут -->
+  <!-- <div class="col message-ping">
     <div class="user-photo">AY</div>
     <div class="">
       <div class="row" style="align-items: center; gap: 10px">
@@ -13,25 +45,18 @@
         dicta labore! Aut?
       </p>
     </div>
-  </div>
-  <div class="col message-ping">
-    <div class="user-photo">AY</div>
-    <div class="">
-      <div class="row" style="align-items: center; gap: 10px">
-        <p class="username">Amin Yapusi</p>
-        <p class="date">21.09.2025 10:06</p>
-      </div>
-      <p class="message-content">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-        cupiditate nulla fugit libero eum, cum blanditiis nostrum asperiores ab
-        ratione reprehenderit dolor delectus velit numquam suscipit, accusamus,
-        dicta labore! Aut?
-      </p>
-    </div>
-  </div>
+  </div> -->
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Message } from "./models";
+
+export interface MessageComponentProps {
+  message: Message;
+}
+
+defineProps<MessageComponentProps>();
+</script>
 
 <style>
 .date {
@@ -72,5 +97,4 @@
   border-bottom-right-radius: 5px;
   border-top-right-radius: 5px;
 }
-
 </style>
