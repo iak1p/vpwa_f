@@ -1,40 +1,44 @@
-import { defineStore } from "pinia"
+import { defineStore } from "pinia";
 
-export type Status = "online" | "dnd" | "offline"
+export type Status = "online" | "dnd" | "offline";
 export interface Member {
-  id: number
-  username: string
-  name?: string | null
-  surname?: string | null
-  status?: Status | null
-  role?: string | null
-  reports?: number | null
+  id: number;
+  username: string;
+  name?: string | null;
+  surname?: string | null;
+  status?: Status | null;
+  role?: string | null;
+  reports?: number | null;
 }
 
 export const useMembersStore = defineStore("members", {
   state: () => ({
-    list: [] as Member[],
+    members: [] as Member[],
     loading: false,
   }),
   actions: {
-    clear() { this.list = [] },
+    clear() {
+      this.members = [];
+    },
 
-    async fetchByChannelId(channelId: number, token: string | null) {
-      this.loading = true
+    async fetchByChannelId(channelId: number) {
+      this.loading = true;
       try {
-        const url = `http://localhost:3333/api/channels/${encodeURIComponent(String(channelId))}/members`
-
-        const headers: Record<string, string> = {}
-        if (token) headers.Authorization = `Bearer ${token}`
-
-        const res = await fetch(url, { headers })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data?.message || "Failed to load members")
-
-        this.list = Array.isArray(data) ? data : (data.members ?? [])
+        const res = await fetch(
+          `http://localhost:3333/api/channels/${channelId}/members`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.message || "Failed to load members");
+        
+        this.members = data
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
   },
-})
+});

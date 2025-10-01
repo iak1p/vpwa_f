@@ -35,31 +35,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useChannelsStore } from "src/stores/channels";
-import { useUserStore } from "src/stores/user";
 import { useMembersStore, type Member, type Status } from "src/stores/members";
 
 const channels = useChannelsStore();
 const { activeChannelId } = storeToRefs(channels);
 
-const user = useUserStore();
-const { token } = storeToRefs(user);
-
 const membersStore = useMembersStore();
-const { list, loading } = storeToRefs(membersStore);
-const members = computed(() => list.value);
+const { members, loading } = storeToRefs(membersStore);
 
 onMounted(() => {
   if (activeChannelId.value) {
-    membersStore.fetchByChannelId(activeChannelId.value, token.value);
+    membersStore.fetchByChannelId(activeChannelId.value);
   }
 });
 
 watch(activeChannelId, (id) => {
   membersStore.clear();
-  if (id) membersStore.fetchByChannelId(id, token.value);
+  if (id) membersStore.fetchByChannelId(id);
 });
 
 function displayName(m: Member) {
@@ -85,7 +80,7 @@ function statusClass(st?: Status | null) {
 <style scoped>
 .panel {
   background-color: #282b30;
-  border-left: 1px solid #424549;
+  /* border-left: 1px solid #424549; */
 }
 .mb-header {
   display: flex;

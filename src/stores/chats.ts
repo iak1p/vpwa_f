@@ -28,7 +28,7 @@ export const useChatsStore = defineStore("chats", {
 
       socket.on(
         "chat:new",
-        (channelId?: number, userId?: number, chat: Chat) => {
+        (chat: Chat, channelId?: number, userId?: number) => {
           console.log("CHATTT:::NEEWWW");
           const raw = localStorage.getItem("user");
           const userIdLocal = raw ? JSON.parse(raw).id : null;

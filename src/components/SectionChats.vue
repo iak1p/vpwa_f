@@ -5,9 +5,15 @@
   >
     <div class="channel__header">
       <div>
-        <p>{{ activeChannelName || "no chat selected" }}</p>
-        <p v-if="ownerLabel && activeChannelName" class="channel__owner">
-          {{ ownerLabel }}
+        <div class="row" style="align-items: center;">
+          <p>{{ activeChannelName || "no chat selected" }}</p>
+          <p class="channel__owner" style="padding-left: 10px;">
+            {{ activeChannel?.isPrivate ? "Private" : "Public" }}
+          </p>
+        </div>
+
+        <p v-if="owner.username && activeChannelName" class="channel__owner">
+          {{ owner.username }}
         </p>
       </div>
       <div>
@@ -38,7 +44,7 @@
           dense
           icon="logout"
           class="text-grey-4 q-ml-xs"
-          @click="onLeaveChannel()"
+          @click="channelLeave()"
         />
       </div>
     </div>
@@ -160,9 +166,11 @@ const { loading: chatsLoading } = storeToRefs(chatsStore);
 
 import { useChannelsStore } from "src/stores/channels";
 const channelsStore = useChannelsStore();
-const { activeChannelId, activeChannelName } = storeToRefs(channelsStore);
+const { activeChannelId, activeChannelName, owner, activeChannel } =
+  storeToRefs(channelsStore);
 
 import { useUserStore } from "src/stores/user";
+import { channelLeave } from "src/services/channelLeave";
 const userStore = useUserStore();
 // const { token } = storeToRefs(userStore);
 
@@ -193,9 +201,9 @@ async function submitAddMember(add: addProps) {
 
     const res = await fetch(url, {
       method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+      },
       // headers: {
       //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
       // },
@@ -281,38 +289,36 @@ async function submitCreateChat(create: createProps) {
   }
 }
 
-async function onLeaveChannel() {
-  // const name = activeChannel.value;
-  if (!activeChannelName.value || !activeChannelId.value) return;
+// async function onLeaveChannel() {
+//   // const name = activeChannel.value;
+//   if (!activeChannelName.value || !activeChannelId.value) return;
 
-  try {
-    const res = await fetch(
-      `http://localhost:3333/api/channels/${encodeURIComponent(
-        activeChannelName.value
-      )}/leave`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-        // headers: {
-        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
-        // },
-      }
-    );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok)
-      throw new Error(data?.message || "Failed to leave/delete channel");
+//   try {
+//     const res = await fetch(
+//       `http://localhost:3333/api/channels/${activeChannelId.value}/leave`,
+//       {
+//         method: "DELETE",
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+//         },
+//         // headers: {
+//         //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+//         // },
+//       }
+//     );
+//     const data = await res.json().catch(() => ({}));
+//     if (!res.ok)
+//       throw new Error(data?.message || "Failed to leave/delete channel");
 
-    // channels.value = channels.value.filter((c) => c.name !== name);
-    channelsStore.removeChannel(activeChannelId.value);
-    // activeChannel.value = channels[0]?.name ?? "";
-    // channelChats.value = [];
-    // activeChat.value = "";
-  } catch (e) {
-    console.error(e);
-  }
-}
+//     // channels.value = channels.value.filter((c) => c.name !== name);
+//     channelsStore.removeChannel(activeChannelId.value);
+//     // activeChannel.value = channels[0]?.name ?? "";
+//     // channelChats.value = [];
+//     // activeChat.value = "";
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
 
 interface addProps {
   open: boolean;

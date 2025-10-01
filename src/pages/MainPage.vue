@@ -6,7 +6,8 @@
 
     <ChatSection class="col" v-model:message="message" />
 
-    <section>Right Side <MembersList class="col" /></section>
+    <!-- <section>Right Side </section> -->
+    <RightSection />
   </div>
 
   <BottomModal :on-logout="handleLogout" />
@@ -21,10 +22,20 @@ import ChatSection from "src/components/ChatSection.vue";
 import { useRouter } from "vue-router";
 import { useChannelsStore } from "src/stores/channels";
 import { useUserStore } from "src/stores/user";
-import MembersList from "src/components/MembersList.vue";
+import RightSection from "src/components/RightSection.vue";
+import { useChatsStore } from "src/stores/chats";
+import { storeToRefs } from "pinia";
+import { useMessagesStore } from "src/stores/messages";
+
 const userStore = useUserStore();
 
 const channelsStore = useChannelsStore();
+const { activeChannelId } = storeToRefs(channelsStore);
+
+const chatsStore = useChatsStore();
+const { activeChatId } = storeToRefs(chatsStore);
+
+const messagesStore = useMessagesStore();
 
 const message = ref("");
 const router = useRouter();
@@ -43,6 +54,14 @@ const ownerLabel = ref<string | null>(null);
 onMounted(async () => {
   await channelsStore.fetchChannels();
   await userStore.getUser();
+
+  if (!activeChannelId.value) return;
+
+  await chatsStore.fetchChats(activeChannelId.value);
+
+  if (!activeChatId.value) return;
+
+  await messagesStore.fetchMessages(activeChatId.value);
 });
 
 async function handleLogout() {
