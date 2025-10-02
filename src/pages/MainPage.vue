@@ -62,6 +62,7 @@ onMounted(async () => {
   if (!activeChatId.value) return;
 
   await messagesStore.fetchMessages(activeChatId.value);
+
 });
 
 async function handleLogout() {
