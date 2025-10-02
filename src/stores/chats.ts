@@ -30,8 +30,8 @@ export const useChatsStore = defineStore("chats", {
         "chat:new",
         (chat: Chat, channelId?: number, userId?: number) => {
           console.log("CHATTT:::NEEWWW");
-          const raw = localStorage.getItem("user");
-          const userIdLocal = raw ? JSON.parse(raw).id : null;
+          // const raw = localStorage.getItem("user");
+          // const userIdLocal = raw ? JSON.parse(raw).id : null;
 
           // if (userId && userIdLocal !== userId) return;
 

@@ -13,12 +13,14 @@
             @click="cycleStatus"
             title="Нажми чтобы сменить свой пол"
           >
-            <span>{{ initials }}</span>
+            <span>{{ surname?.[0] }}{{ name?.[0] }}</span>
             <span class="bm-status" :class="statusClass"></span>
           </div>
         </q-item-section>
         <q-item-section>
-          <q-item-label class="text-white">{{ displayName }}</q-item-label>
+          <q-item-label class="text-white"
+            >{{ surname }} {{ name }}</q-item-label
+          >
           <q-item-label
             caption
             class="row items-center q-gutter-xs text-grey-5"
@@ -49,12 +51,17 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
+import { useChannelsStore } from "src/stores/channels";
+import { useMembersStore } from "src/stores/members";
 import { useUserStore } from "src/stores/user";
-import { computed} from "vue";
+import { computed } from "vue";
 
-const user = useUserStore()
-const { name, surname, username: usernameRef, status } = storeToRefs(user)
-
+const user = useUserStore();
+const { name, surname, username: usernameRef, status } = storeToRefs(user);
+const username = computed((): string => usernameRef.value ?? "user");
+const channels = useChannelsStore();
+const { activeChannelId } = storeToRefs(channels);
+const membersStore = useMembersStore();
 
 export interface BottomModalProps {
   onLogout: () => void;
@@ -121,34 +128,26 @@ defineProps<BottomModalProps>();
 //   );
 // }
 
-
-
-
-const displayName = computed((): string => {
-  const n = (name.value ?? "").trim()
-  const s = (surname.value ?? "").trim()
-  return (n || s) ? [n, s].filter(Boolean).join(" ") : "User"
-})
-
-const username = computed((): string => usernameRef.value ?? "user")
-
-const initials = computed((): string => {
-  const parts = displayName.value.split(" ").filter(Boolean)
-  const a = (parts[0]?.[0] ?? "U").toUpperCase()
-  const b = (parts[1]?.[0] ?? "").toUpperCase()
-  return (a + b) || "U"
-})
 const statusClass = computed((): string => {
-  return status.value === "online" ? "is-online"
-       : status.value === "dnd"    ? "is-away"
-       :                              "is-offline"
-})
-function cycleStatus() {
-  const cur = status.value
-  const next = cur === "online" ? "dnd" : cur === "dnd" ? "offline" : "online"
-  user.setStatus(next)
+  return status.value === "online"
+    ? "is-online"
+    : status.value === "dnd"
+    ? "is-away"
+    : "is-offline";
+});
+async function cycleStatus() {
+  const cur = status.value;
+  const next = cur === "online" ? "dnd" : cur === "dnd" ? "offline" : "online";
+  // user.setStatus(next);
+  try {
+    await user.setStatus(next);
+    if (activeChannelId.value) {
+      await membersStore.fetchByChannelId(activeChannelId.value);
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
-
 </script>
 
 <style scoped>

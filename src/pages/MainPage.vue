@@ -41,16 +41,6 @@ const message = ref("");
 const router = useRouter();
 const ownerLabel = ref<string | null>(null);
 
-// const ownerLabel = computed<string | null>(() => {
-//   const ch = channels.value.find((c) => c.name === activeChannel.value);
-//   const dn = ch?.owner?.displayName?.trim() || "";
-//   const un = ch?.owner?.username?.trim() || "";
-
-//   if (!dn && !un) return null;
-//   if (dn && un) return `${dn} (@${un})`;
-//   return dn || `@${un}`;
-// });
-
 onMounted(async () => {
   await channelsStore.fetchChannels();
   await userStore.getUser();

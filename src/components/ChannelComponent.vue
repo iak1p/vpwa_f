@@ -26,14 +26,6 @@ export interface ChannelComponentProps {
   color?: string;
 }
 
-// interface Owner {
-//   id: number;
-//   username: string;
-//   firstName: string | null;
-//   lastName: string | null;
-//   displayName: string;
-// }
-
 const prorps = withDefaults(defineProps<ChannelComponentProps>(), {
   color: "#26A69A",
   active: false,

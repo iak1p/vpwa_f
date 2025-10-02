@@ -12,7 +12,7 @@
           </p>
         </div>
 
-        <p v-if="owner.username && activeChannelName" class="channel__owner">
+        <p v-if="owner?.username && activeChannelName" class="channel__owner">
           {{ owner.username }}
         </p>
       </div>
