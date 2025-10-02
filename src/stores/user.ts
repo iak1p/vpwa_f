@@ -70,36 +70,32 @@ export const useUserStore = defineStore("user", {
       this.createdAt = null;
       this.updatedAt = null;
     },
-    setStatus(s: string) {
-      this.status = s;
-    },
-    cycleStatus() {
-      this.setStatus(this.status === "online" ? "offline" : "online");
-    },
-  },
+    async setStatus(next: Status) {
+      const prev = this.status;
+      this.status = next;
 
-  getters: {
-    isAuth: (s) => !!s.token,
+      try {
+        const res = await fetch("http://localhost:3333/api/users/status", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
+          body: JSON.stringify({ status: next }),
+        });
 
-    displayName: (s): string => {
-      const n = (s.name ?? "").trim();
-      const sn = (s.surname ?? "").trim();
-      return n || sn ? [n, sn].join(" ") : "User";
-    },
+        if (!res.ok) {
+          this.status = prev;
+          const errText = await res.text().catch(() => "");
+          throw new Error(`Status update failed: ${res.status} ${errText}`);
+        }
 
-    initials(): string {
-      const parts = this.displayName.split(" ").filter(Boolean);
-      const a = (parts[0]?.[0] ?? "U").toUpperCase();
-      const b = (parts[1]?.[0] ?? "").toUpperCase();
-      return a + b || "U";
-    },
-
-    statusClass(): string {
-      return this.status === "online"
-        ? "is-online"
-        : this.status === "dnd"
-        ? "is-away"
-        : "is-offline";
+        const data = await res.json().catch(() => ({}));
+        this.status = (data?.status as Status) || next;
+      } catch (e) {
+        this.status = prev;
+        throw e;
+      }
     },
   },
 });

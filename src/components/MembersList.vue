@@ -10,19 +10,20 @@
       <q-item v-for="m in members" :key="m.id">
         <q-item-section avatar>
           <div class="bm-avatar bm-sm">
-            <span>{{ initialsOf(m) }}</span>
+            <span>{{ m.surname?.[0]?.toUpperCase() }}{{ m.name?.[0]?.toUpperCase() }}</span>
             <span class="bm-status" :class="statusClass(m.status)"></span>
           </div>
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-white">{{ displayName(m) }}</q-item-label>
+          <q-item-label class="text-white"
+            >{{ m.surname }} {{ m.name }}</q-item-label
+          >
           <q-item-label
             caption
             class="row items-center q-gutter-xs text-grey-5"
           >
             <span>@{{ m.username }}</span>
-            <span class="bm-dot" :class="statusClass(m.status)"></span>
           </q-item-label>
         </q-item-section>
       </q-item>
@@ -57,17 +58,6 @@ watch(activeChannelId, (id) => {
   if (id) membersStore.fetchByChannelId(id);
 });
 
-function displayName(m: Member) {
-  const n = (m.name ?? "").trim();
-  const s = (m.surname ?? "").trim();
-  return n || s ? [n, s].filter(Boolean).join(" ") : "User";
-}
-function initialsOf(m: Member) {
-  const parts = displayName(m).split(" ").filter(Boolean);
-  const a = (parts[0]?.[0] ?? "U").toUpperCase();
-  const b = (parts[1]?.[0] ?? "").toUpperCase();
-  return a + b || "U";
-}
 function statusClass(st?: Status | null) {
   return st === "online"
     ? "is-online"

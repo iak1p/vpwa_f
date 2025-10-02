@@ -1,6 +1,6 @@
 import { defineStore, storeToRefs } from "pinia";
 import type { Channel } from "src/components/models";
-import { getSocket } from "src/lib/socket"
+import { getSocket } from "src/lib/socket";
 import { useUserStore } from "src/stores/user";
 // const userStore = useUserStore();
 // const { token } = storeToRefs(userStore);
@@ -13,30 +13,30 @@ export const useChannelsStore = defineStore("channels", {
     activeChannelName: null as string | null,
     activeChannel: null as Channel | null,
     initedRealtime: false,
-    owner: {} as any
+    owner: {} as any,
   }),
   actions: {
     initRealtime() {
-      if (this.initedRealtime) return
-      this.initedRealtime = true
+      if (this.initedRealtime) return;
+      this.initedRealtime = true;
 
       const userStore = useUserStore();
       const { id } = storeToRefs(userStore);
 
-      const socket = getSocket()
+      const socket = getSocket();
 
-      socket.off('channel:new')
+      socket.off("channel:new");
 
-      socket.on('channel:new', (channel: Channel, userId?: number) => {
-        const raw = localStorage.getItem('user')
-        const userIdLocal = raw ? JSON.parse(raw).id : null
+      socket.on("channel:new", (channel: Channel, userId?: number) => {
+        const raw = localStorage.getItem("user");
+        const userIdLocal = raw ? JSON.parse(raw).id : null;
 
-        if (userId && id.value !== userId) return
+        if (userId && id.value !== userId) return;
 
-        this.channels.unshift(channel)
-        console.log("CHAHHAHAHAHH", channel)
-        this.owner = channel.owner
-      })
+        this.channels.unshift(channel);
+        console.log("CHAHHAHAHAHH", channel);
+        this.owner = channel.owner;
+      });
     },
     async fetchChannels() {
       this.loading = true;
@@ -50,7 +50,7 @@ export const useChannelsStore = defineStore("channels", {
       })
         .then((res) => res.json())
         .then((data: Channel[]) => {
-          data.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          data?.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
           this.channels = data;
           this.activeChannelId = data[0]?.id ?? null;
@@ -64,6 +64,14 @@ export const useChannelsStore = defineStore("channels", {
         .catch((err) => {
           console.error(err);
         });
+      if (!this.activeChannelId && this.channels.length) {
+        const [first] = this.channels;
+        if (first) {
+          this.activeChannelId = first.id;
+          this.activeChannelName = first.name;
+          this.activeChannel = first;
+        }
+      }
     },
     addChannel(channel: Channel) {
       this.channels.unshift(channel);
@@ -79,8 +87,11 @@ export const useChannelsStore = defineStore("channels", {
     setActiveChannel(channelId: number, channelName: string) {
       this.activeChannelId = channelId;
       this.activeChannelName = channelName;
-      this.activeChannel = this.channels.find((channel) => channel.id == channelId) ?? null;
-      this.owner = this.channels.find((channel) => channel.id == channelId)?.owner
+      this.activeChannel =
+        this.channels.find((channel) => channel.id == channelId) ?? null;
+      this.owner = this.channels.find(
+        (channel) => channel.id == channelId
+      )?.owner;
     },
   },
 });

@@ -35,17 +35,25 @@
 
     <div
       class="chat-input row items-center q-px-md q-py-sm"
-      style="position: absolute; bottom: 0; width: 100%"
+      style="bottom: 0; width: 100%"
     >
       <q-input
         v-model="messageInput"
+        ref="messageField"
         :placeholder="`Message #${activeChatName}`"
         dense
         filled
         input-class="text-white"
         class="chat-input__field col"
+        @keyup.enter="sendMessage"
       />
-      <q-btn @click="sendMessage"> Send </q-btn>
+      <!-- <q-btn @click="sendMessage"> Send </q-btn> -->
+      <q-btn
+        label="Send"
+        :loading="sending"
+        :disable="sending || !messageInput.trim()"
+        @click="sendMessage"
+      />
     </div>
   </section>
 </template>
@@ -54,8 +62,9 @@
 import { storeToRefs } from "pinia";
 import MessageComponent from "./MessageComponent.vue";
 import { useMessagesStore } from "src/stores/messages";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useChatsStore } from "src/stores/chats";
+import { watch } from "vue";
 
 const messagesStore = useMessagesStore();
 const { messages, loading } = storeToRefs(messagesStore);
@@ -63,30 +72,76 @@ const { messages, loading } = storeToRefs(messagesStore);
 const chatsStore = useChatsStore();
 const { activeChatName, activeChatId } = storeToRefs(chatsStore);
 
+const messageInput = ref("");
+const messageField = ref();
+const sending = ref(false);
+
+onMounted(() => {
+  if (activeChatId.value) {
+    messagesStore.fetchMessages(activeChatId.value);
+  }
+});
+
+watch(activeChatId, async (next) => {
+  messagesStore.clear();
+  if (next) await messagesStore.fetchMessages(next);
+});
+
 const sendMessage = async () => {
   if (!activeChatId.value || messageInput.value == "") return;
 
   console.log(messageInput.value, activeChatId.value);
-  fetch(`http://localhost:3333/api/messages/${activeChatId.value}/send`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({
-      content: messageInput.value,
-    }),
-  })
-    .then((res) => res.json())
-    .catch((err) => console.error(err))
-    .then((data) => {
-      console.log(data);
+  sending.value = true;
 
-      messagesStore.addNewMessage(data);
-    });
+  // fetch(`http://localhost:3333/api/messages/${activeChatId.value}/send`, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //   },
+  //   body: JSON.stringify({
+  //     content: messageInput.value,
+  //   }),
+  // })
+  //   .then((res) => res.json())
+  //   .catch((err) => console.error(err))
+  //   .then((data) => {
+  //     console.log(data);
+
+  //     messagesStore.addNewMessage(data);
+
+  //     messageInput.value = "";
+  //     messageField.value?.focus();
+  //   });
+
+  try {
+    const res = await fetch(
+      `http://localhost:3333/api/messages/${activeChatId.value}/send`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          content: messageInput.value,
+        }),
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.message || "Failed to send");
+    console.log(data);
+
+    // messagesStore.addNewMessage(data);
+
+    messageInput.value = "";
+    messageField.value?.focus();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    sending.value = false;
+  }
 };
-
-const messageInput = ref("");
 </script>
 
 <style>
