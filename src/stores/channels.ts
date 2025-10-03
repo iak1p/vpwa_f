@@ -28,9 +28,6 @@ export const useChannelsStore = defineStore("channels", {
       socket.off("channel:new");
 
       socket.on("channel:new", (channel: Channel, userId?: number) => {
-        const raw = localStorage.getItem("user");
-        const userIdLocal = raw ? JSON.parse(raw).id : null;
-
         if (userId && id.value !== userId) return;
 
         this.channels.unshift(channel);

@@ -15,4 +15,8 @@ chatsStore.initRealtime();
 import { useMessagesStore } from "src/stores/messages";
 const messagesStore = useMessagesStore();
 messagesStore.initRealtime();
+
+import { useMembersStore } from "./stores/members";
+const membersStore = useMembersStore();
+membersStore.initRealtime();
 </script>
