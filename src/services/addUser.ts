@@ -1,5 +1,5 @@
-import { useChatsStore } from "src/stores/chats";
-const chatsStore = useChatsStore();
+// import { useChatsStore } from "src/stores/chats";
+// const chatsStore = useChatsStore();
 // const { loading: chatsLoading } = storeToRefs(chatsStore);
 
 import { useChannelsStore } from "src/stores/channels";
@@ -23,6 +23,7 @@ export async function addUser(username: any) {
         // },
       }
     );
+
     const data = await res.json().catch(() => ({}));
     console.log(data)
   } catch (e) {

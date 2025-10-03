@@ -1,7 +1,11 @@
+// import type { Status } from "./members";
 import { getSocket } from "src/lib/socket";
 // import { Message } from "./../components/models";
 import { defineStore, storeToRefs } from "pinia";
 import { useChatsStore } from "./chats";
+import { AppVisibility } from "quasar";
+import { useUserStore } from "./user";
+import { Message } from "src/components/models";
 
 export const useMessagesStore = defineStore("messages", {
   state: () => ({
@@ -10,6 +14,36 @@ export const useMessagesStore = defineStore("messages", {
     loading: false,
   }),
   actions: {
+    checkNotification(message: Message) {
+      const mentionRegex = /@(\w+)/g;
+      const userStore = useUserStore();
+      const { status, username } = storeToRefs(userStore);
+
+      if (AppVisibility.appVisible) return;
+      if (Notification.permission !== "granted") return;
+      if (status.value === "dnd" || status.value === "offline") return;
+      if (message.type === "text") return;
+
+      if (message.type === "ping") {
+        let me = false;
+        const matches = message.content.match(mentionRegex);
+
+        matches?.forEach((match) => {
+          if (match.includes(`@${username.value}`)) me = true;
+        });
+
+        if (!me) return;
+      }
+
+      if (true) {
+        new Notification(
+          `${message.sender.name} ${message.sender.surname} (@${message.sender.username})`,
+          {
+            body: `${message.content.slice(0, 60)}...`,
+          }
+        );
+      }
+    },
     initRealtime() {
       if (this.initedRealtime) return;
       this.initedRealtime = true;
@@ -27,6 +61,15 @@ export const useMessagesStore = defineStore("messages", {
           if (!this.messages.some((m) => m.id === message.id)) {
             this.messages.push(message);
           }
+
+          console.log(message);
+
+          if (!("Notification" in window)) {
+            alert("Браузер не поддерживает Notifications API");
+            return;
+          }
+
+          this.checkNotification(message);
         }
       );
     },

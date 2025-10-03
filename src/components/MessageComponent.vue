@@ -1,11 +1,21 @@
 <template>
-  <div class="col message">
-    <div class="user-photo">
-      {{ message.sender.name?.[0] }}{{ message.sender.surname?.[0] }}
+  <div
+    class="col"
+    :class="{
+      'message-ping': ping,
+      message: !ping,
+    }"
+  >
+    <div class="user-photo" :style="{ backgroundColor: message.sender.color }">
+      {{ message.sender.name?.[0]?.toUpperCase()
+      }}{{ message.sender.surname?.[0]?.toUpperCase() }}
     </div>
-    <div class="">
+    <div>
       <div class="row" style="align-items: center; gap: 10px">
-        <p class="username">{{ message.sender.name }} {{ message.sender.surname }}</p>
+        <p class="username">
+          <!-- {{ message.sender.name }} {{ message.sender.surname }} -->
+          {{ message.sender.username }}
+        </p>
         <p class="date">
           {{
             new Date(message.createdAt).toLocaleDateString("de-DE", {
@@ -23,32 +33,34 @@
       </p>
     </div>
   </div>
-  <!-- Надо для сообщений в которых человек был пингнут -->
-  <!-- <div class="col message-ping">
-    <div class="user-photo">AY</div>
-    <div class="">
-      <div class="row" style="align-items: center; gap: 10px">
-        <p class="username">Amin Yapusi</p>
-        <p class="date">21.09.2025 10:06</p>
-      </div>
-      <p class="message-content">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-        cupiditate nulla fugit libero eum, cum blanditiis nostrum asperiores ab
-        ratione reprehenderit dolor delectus velit numquam suscipit, accusamus,
-        dicta labore! Aut?
-      </p>
-    </div>
-  </div> -->
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "src/stores/user";
 import type { Message } from "./models";
+import { storeToRefs } from "pinia";
+
+let ping = false;
+const mentionRegex = /@(\w+)/g;
+
+const userStore = useUserStore();
+const { username } = storeToRefs(userStore);
 
 export interface MessageComponentProps {
   message: Message;
 }
 
-defineProps<MessageComponentProps>();
+const props = defineProps<MessageComponentProps>();
+
+if (props.message.type == "ping") {
+  const matches = props.message.content.match(mentionRegex);
+
+  matches?.forEach((match) => {
+    console.log("MATCHHHHH", match, username.value);
+
+    if (match.includes(`@${username.value}`)) ping = true;
+  });
+}
 </script>
 
 <style>

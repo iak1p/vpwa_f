@@ -10,7 +10,11 @@
     <q-list v-else bordered separator>
       <q-item v-for="m in members" :key="m.id">
         <q-item-section avatar>
-          <div class="bm-avatar bm-sm" style="position: absolute">
+          <div
+            class="bm-avatar bm-sm"
+            style="position: absolute"
+            :style="{ backgroundColor: m.color }"
+          >
             <span
               >{{ m.surname?.[0]?.toUpperCase()
               }}{{ m.name?.[0]?.toUpperCase() }}</span
@@ -65,9 +69,9 @@ const showMessage = (userId: number) => {
   membersStore.showMessage(userId);
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (activeChannelId.value) {
-    membersStore.fetchByChannelId(activeChannelId.value);
+    await membersStore.fetchByChannelId(activeChannelId.value);
   }
 });
 
@@ -129,7 +133,6 @@ function statusClass(st?: Status | null) {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #1976d2;
   color: #fff;
   display: flex;
   align-items: center;

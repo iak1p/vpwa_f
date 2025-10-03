@@ -11,6 +11,7 @@
           <div
             class="bm-avatar"
             @click="cycleStatus"
+            :style="{ backgroundColor: color || '#1976d2' }"
             title="Нажми чтобы сменить свой пол"
           >
             <span>{{ surname?.[0] }}{{ name?.[0] }}</span>
@@ -57,7 +58,13 @@ import { useUserStore } from "src/stores/user";
 import { computed } from "vue";
 
 const user = useUserStore();
-const { name, surname, username: usernameRef, status } = storeToRefs(user);
+const {
+  name,
+  surname,
+  username: usernameRef,
+  status,
+  color,
+} = storeToRefs(user);
 const username = computed((): string => usernameRef.value ?? "user");
 const channels = useChannelsStore();
 const { activeChannelId } = storeToRefs(channels);
@@ -160,7 +167,7 @@ async function cycleStatus() {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #1976d2;
+  /* background: #1976d2; */
   color: #fff;
   display: flex;
   align-items: center;

@@ -14,6 +14,7 @@ export interface Member {
   typing?: boolean | null;
   message?: string | null;
   showMessage: boolean | null;
+  color: string;
 }
 
 export const useMembersStore = defineStore("members", {

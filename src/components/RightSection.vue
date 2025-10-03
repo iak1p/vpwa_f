@@ -36,7 +36,7 @@ const onInputBlur = async (val: string) => {
     await channelLeave();
   } else if (commands[0] == "/invite") {
     console.log("YOUU INVITED", commands[1]);
-    addUser(commands[1]);
+    await addUser(commands[1]);
   }
 
   command.value = "";

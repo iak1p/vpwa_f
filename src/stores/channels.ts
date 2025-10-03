@@ -47,7 +47,7 @@ export const useChannelsStore = defineStore("channels", {
       })
         .then((res) => res.json())
         .then((data: Channel[]) => {
-          data?.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          data?.sort((a, b) => b.createdAt.localeCompare(a.joinedAt));
 
           this.channels = data;
           this.activeChannelId = data[0]?.id ?? null;

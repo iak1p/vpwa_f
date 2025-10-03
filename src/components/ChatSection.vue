@@ -16,7 +16,7 @@
       </div>
       <div class="" v-else>
         <q-list padding class="q-gutter-y-sm" style="height: 100%">
-          <MessageComponent v-for="message in messages" :message="message" />
+          <MessageComponent v-for="message in messages" :message="message" v-bind:key="message.id"/>
         </q-list>
 
         <!-- <q-list padding class="q-gutter-y-sm" style="height: 100%">
@@ -61,7 +61,8 @@ import { watch } from "vue";
 import { getSocket } from "src/lib/socket";
 import { useUserStore } from "src/stores/user";
 import { useChannelsStore } from "src/stores/channels";
-import MessageLoadingComponent from "./MessageLoadingComponent.vue";
+// import MessageLoadingComponent from "./MessageLoadingComponent.vue";
+import { useMembersStore } from "src/stores/members";
 
 const messagesStore = useMessagesStore();
 const { messages, loading } = storeToRefs(messagesStore);
@@ -71,6 +72,9 @@ const { activeChatName, activeChatId } = storeToRefs(chatsStore);
 
 const channelStore = useChannelsStore();
 const { activeChannelName, activeChannelId } = storeToRefs(channelStore);
+
+const memberslStore = useMembersStore();
+const { members } = storeToRefs(memberslStore);
 
 const userStore = useUserStore();
 const { id: userId, username } = storeToRefs(userStore);
@@ -112,32 +116,36 @@ watch(activeChatId, async (next) => {
 
 const sendMessage = async () => {
   const mentionRegex = /@(\w+)/g;
-  
+
   if (!activeChatId.value || messageInput.value == "") return;
 
   console.log(messageInput.value, activeChatId.value);
   sending.value = true;
 
-  // fetch(`http://localhost:3333/api/messages/${activeChatId.value}/send`, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //   },
-  //   body: JSON.stringify({
-  //     content: messageInput.value,
-  //   }),
-  // })
-  //   .then((res) => res.json())
-  //   .catch((err) => console.error(err))
-  //   .then((data) => {
-  //     console.log(data);
+  // const matches = messageInput.value.match(mentionRegex);
 
-  //     messagesStore.addNewMessage(data);
+  // const mentionRegex = /@(\w+)/g;
+  const mentions = [...messageInput.value.matchAll(mentionRegex)].map(
+    (m) => m[1]
+  );
 
-  //     messageInput.value = "";
-  //     messageField.value?.focus();
-  //   });
+  const userPinged = members.value.some((m) => mentions.includes(m.username));
+
+  // let userPinged = false;
+
+  // members.value.forEach((member) => {
+  //   console.log(
+  //     "MEMMDMDFHISDFGKSDFKJHSDKFJHKJSDHFJK",
+  //     member,
+  //     member.username,
+  //     matches?.includes(`@${member.username}`)
+  //   );
+
+  //   if (matches?.includes(`@${member.username}`)) {
+  //     userPinged = true;
+  //     break;
+  //   }
+  // });
 
   try {
     const res = await fetch(
@@ -150,6 +158,7 @@ const sendMessage = async () => {
         },
         body: JSON.stringify({
           content: messageInput.value,
+          type: !userPinged ? "text" : "ping",
         }),
       }
     );

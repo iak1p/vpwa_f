@@ -5,15 +5,17 @@
   >
     <div class="channel__header">
       <div>
-        <div class="row" style="align-items: center;">
-          <p>{{ activeChannelName || "no chat selected" }}</p>
-          <p class="channel__owner" style="padding-left: 10px;">
+        <div class="row" style="align-items: center">
+          <p class="scrolling-text" ref="titleEl">
+            <span>{{ activeChannelName || "no chat selected" }}</span>
+          </p>
+          <p class="channel__owner" style="padding-left: 10px">
             {{ activeChannel?.isPrivate ? "Private" : "Public" }}
           </p>
         </div>
 
         <p v-if="owner?.username && activeChannelName" class="channel__owner">
-          {{ owner.username }}
+          {{ owner.name }} {{ owner.surname }} (@{{ owner.username }})
         </p>
       </div>
       <div>
@@ -369,6 +371,48 @@ function closeCreateChatDialog() {
 </script>
 
 <style>
+.scrolling-text {
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* .scrolling-text::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, #282b30);
+} */
+
+/* .scrolling-text span {
+  display: inline-block;
+  padding-right: 2%;
+  animation: marquee 8s linear infinite;
+  animation-delay: 2s;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  15% {
+    transform: translateX(0%);
+  }
+  50% {
+    transform: translateX(-30%);
+  }
+  65% {
+    transform: translateX(-30%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+} */
+
 .channel__header {
   font-weight: bold;
   font-size: 18px;
