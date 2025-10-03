@@ -18,7 +18,7 @@ export const useUserStore = defineStore("user", {
     // user: null as User | null
   }),
   actions: {
-    async getUser() {
+    getUser() {
       fetch("http://localhost:3333/api/users/me", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

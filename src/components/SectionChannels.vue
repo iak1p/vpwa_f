@@ -77,8 +77,8 @@ const { channels, activeChannelId } = storeToRefs(channelsStore);
 import { useChatsStore } from "src/stores/chats";
 const chatsStore = useChatsStore();
 
-import { useUserStore } from "src/stores/user";
-const userStore = useUserStore();
+import { getSocket } from "src/lib/socket";
+
 // const { token } = storeToRefs(userStore);
 
 // export interface SectionChannelsProps {
@@ -89,6 +89,10 @@ const userStore = useUserStore();
 
 const onChannelClick = async (channelName: string, channelId: number) => {
   console.log("Channel clicked:", channelName, channelId);
+
+  const socket = getSocket();
+  socket.emit("channel:subscribe", channelId);
+
   await chatsStore.fetchChats(channelId);
   channelsStore.setActiveChannel(channelId, channelName);
 };
@@ -133,7 +137,7 @@ async function submitCreateChannel() {
 
     const created = data.channel;
     channelsStore.addChannel(created);
-    channelsStore.setActiveChannel(created.id, created.name)
+    channelsStore.setActiveChannel(created.id, created.name);
     create.open = false;
   } catch (e) {
     create.error = e instanceof Error ? e.message : "Network error";

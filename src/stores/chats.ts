@@ -1,9 +1,6 @@
 import { defineStore, storeToRefs } from "pinia";
 import type { Chat } from "src/components/models";
 import { useUserStore } from "src/stores/user";
-// const userStore = useUserStore();
-// const { token } = storeToRefs(userStore);
-import { useChannelsStore } from "src/stores/channels";
 import { getSocket } from "src/lib/socket";
 
 export const useChatsStore = defineStore("chats", {
@@ -28,19 +25,8 @@ export const useChatsStore = defineStore("chats", {
 
       socket.on(
         "chat:new",
-        (chat: Chat, channelId?: number, userId?: number) => {
-          console.log("CHATTT:::NEEWWW");
-          // const raw = localStorage.getItem("user");
-          // const userIdLocal = raw ? JSON.parse(raw).id : null;
-
-          // if (userId && userIdLocal !== userId) return;
-
-          const channelsStore = useChannelsStore();
-          const { channels, activeChannelId } = storeToRefs(channelsStore);
-
-          if (!activeChannelId) return;
-
-          if (channelId == activeChannelId.value && userId != id.value) {
+        (chat: Chat, userId?: number) => {
+          if (userId != id.value) {
             this.chats.unshift(chat);
           }
         }

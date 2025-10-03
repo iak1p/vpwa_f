@@ -6,7 +6,6 @@
 
     <ChatSection class="col" v-model:message="message" />
 
-    <!-- <section>Right Side </section> -->
     <RightSection />
   </div>
 
@@ -26,6 +25,7 @@ import RightSection from "src/components/RightSection.vue";
 import { useChatsStore } from "src/stores/chats";
 import { storeToRefs } from "pinia";
 import { useMessagesStore } from "src/stores/messages";
+import { getSocket } from "src/lib/socket";
 
 const userStore = useUserStore();
 
@@ -40,6 +40,7 @@ const messagesStore = useMessagesStore();
 const message = ref("");
 const router = useRouter();
 const ownerLabel = ref<string | null>(null);
+const socket = getSocket();
 
 onMounted(async () => {
   await channelsStore.fetchChannels();
@@ -47,47 +48,19 @@ onMounted(async () => {
 
   if (!activeChannelId.value) return;
 
+  socket.emit("channel:subscribe", activeChannelId.value);
+
   await chatsStore.fetchChats(activeChannelId.value);
 
   if (!activeChatId.value) return;
 
   await messagesStore.fetchMessages(activeChatId.value);
-
 });
 
 async function handleLogout() {
   localStorage.clear();
   await router.replace("/login");
 }
-
-// import { io as ioc } from "socket.io-client";
-
-// const socket = ioc("http://localhost:3333", {
-//   auth: { token: localStorage.getItem("token") || "" },
-// });
-
-// socket.on("connect", () => {
-//   const local = JSON.parse(localStorage.getItem("user"));
-//   const userId = local.id;
-//   socket.emit("auth:hello", userId);
-//   // socket.emit('org:subscribe', orgId)
-// });
-
-// const socket = getSocket();
-
-// // console.log("SOCKKKEKEKKEKE", socket)
-
-// socket.on("channel:new", (channel, userId) => {
-
-//   const local = JSON.parse(localStorage.getItem("user"));
-//   const userIdLocal = local.id;
-//   console.log("User IDDDDD", userId, userIdLocal)
-//   console.log(channel);
-//   // добавим новый канал в начало списка
-//   if (userIdLocal == userId) channelsStore.addChannel(channel);
-//   // если нужно — сразу сделать активным:
-//   // channelsStore.activeChannelId = channel.id
-// });
 </script>
 
 <style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="" style="height: 100%; background-color: #282b30">
+  <div class="" style="height: 100%; background-color: #282b30;">
     <MembersList class="col" />
     <q-input
       ref="commandInput"
@@ -27,13 +27,13 @@ const onInputChange = (val: string | number | null) => {
   console.log("В процессе ввода:", val);
 };
 
-const onInputBlur = (val: string) => {
+const onInputBlur = async (val: string) => {
   const commands = val.split(" ");
   console.log("Закончил ввод:", commands);
 
   if (commands[0] == "/cancel") {
     console.log("YOUU DELETED CHANNEL");
-    channelLeave();
+    await channelLeave();
   } else if (commands[0] == "/invite") {
     console.log("YOUU INVITED", commands[1]);
     addUser(commands[1]);

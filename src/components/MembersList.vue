@@ -1,17 +1,25 @@
 <template>
-  <section class="panel q-pa-md scroll-y">
+  <section class="panel q-pa-md scroll-y" style="overflow: visible">
     <div class="mb-header">
       <div class="mb-title">Members</div>
       <div class="mb-count">{{ members.length }}</div>
     </div>
 
     <q-skeleton v-if="loading" type="rect" height="28px" class="q-mb-sm" />
+
     <q-list v-else bordered separator>
       <q-item v-for="m in members" :key="m.id">
         <q-item-section avatar>
-          <div class="bm-avatar bm-sm">
-            <span>{{ m.surname?.[0]?.toUpperCase() }}{{ m.name?.[0]?.toUpperCase() }}</span>
+          <div class="bm-avatar bm-sm" style="position: absolute">
+            <span
+              >{{ m.surname?.[0]?.toUpperCase()
+              }}{{ m.name?.[0]?.toUpperCase() }}</span
+            >
             <span class="bm-status" :class="statusClass(m.status)"></span>
+
+            <div class="buble" :class="{ active: m.showMessage }">
+              <p style="padding: 5px; font-weight: normal">{{ m.message }}</p>
+            </div>
           </div>
         </q-item-section>
 
@@ -24,6 +32,12 @@
             class="row items-center q-gutter-xs text-grey-5"
           >
             <span>@{{ m.username }}</span>
+            <span
+              v-if="m.typing"
+              class="typing-text"
+              style="cursor: pointer"
+              @click="showMessage(m.id)"
+            ></span>
           </q-item-label>
         </q-item-section>
       </q-item>
@@ -39,13 +53,17 @@
 import { onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useChannelsStore } from "src/stores/channels";
-import { useMembersStore, type Member, type Status } from "src/stores/members";
+import { useMembersStore, type Status } from "src/stores/members";
 
 const channels = useChannelsStore();
 const { activeChannelId } = storeToRefs(channels);
 
 const membersStore = useMembersStore();
 const { members, loading } = storeToRefs(membersStore);
+
+const showMessage = (userId: number) => {
+  membersStore.showMessage(userId);
+};
 
 onMounted(() => {
   if (activeChannelId.value) {
@@ -68,6 +86,24 @@ function statusClass(st?: Status | null) {
 </script>
 
 <style scoped>
+.buble {
+  position: absolute;
+  bottom: 25px;
+  right: calc(100%);
+  background-color: white;
+  border-radius: 10px;
+  border-bottom-right-radius: 0px;
+  padding: 5px;
+  max-width: 200px;
+  color: black;
+  z-index: 1000000;
+  white-space: normal;
+  word-wrap: break-word;
+  display: none;
+}
+.buble.active {
+  display: block;
+}
 .panel {
   background-color: #282b30;
   /* border-left: 1px solid #424549; */
@@ -130,5 +166,19 @@ function statusClass(st?: Status | null) {
 }
 .is-offline {
   background: #9e9e9e;
+}
+
+.typing-text {
+  width: fit-content;
+  clip-path: inset(0 1.2ch 0 0);
+  animation: l4 1s steps(3) infinite;
+}
+.typing-text:before {
+  content: "typing...";
+}
+@keyframes l4 {
+  to {
+    clip-path: inset(0 -1ch 0 0);
+  }
 }
 </style>

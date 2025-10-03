@@ -1,16 +1,7 @@
 import { getSocket } from "src/lib/socket";
-import { Message } from "./../components/models";
+// import { Message } from "./../components/models";
 import { defineStore, storeToRefs } from "pinia";
 import { useChatsStore } from "./chats";
-
-export interface Member {
-  id: number;
-  username: string;
-  name?: string | null;
-  surname?: string | null;
-  role?: string | null;
-  reports?: number | null;
-}
 
 export const useMessagesStore = defineStore("messages", {
   state: () => ({

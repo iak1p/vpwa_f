@@ -169,9 +169,8 @@ const channelsStore = useChannelsStore();
 const { activeChannelId, activeChannelName, owner, activeChannel } =
   storeToRefs(channelsStore);
 
-import { useUserStore } from "src/stores/user";
 import { channelLeave } from "src/services/channelLeave";
-const userStore = useUserStore();
+
 // const { token } = storeToRefs(userStore);
 
 export interface SectionChannelsProps {

@@ -7,30 +7,22 @@
       position: relative;
     "
   >
-    <div
-      v-if="loading"
-      style="
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      "
-    >
-      <div class="chats-loader"></div>
-    </div>
-
     <q-scroll-area
-      v-else
       class="chat-body col"
       style="display: flex; align-items: end; justify-content: end; width: 100%"
     >
       <div class="" v-if="messages.length == 0">
         <p>Start a new conversation</p>
       </div>
-      <q-list v-else padding class="q-gutter-y-sm" style="height: 100%">
-        <MessageComponent v-for="message in messages" :message="message" />
-      </q-list>
+      <div class="" v-else>
+        <q-list padding class="q-gutter-y-sm" style="height: 100%">
+          <MessageComponent v-for="message in messages" :message="message" />
+        </q-list>
+
+        <!-- <q-list padding class="q-gutter-y-sm" style="height: 100%">
+          <MessageLoadingComponent v-for="i in 10" :key="i" />
+        </q-list> -->
+      </div>
     </q-scroll-area>
 
     <div
@@ -46,6 +38,7 @@
         input-class="text-white"
         class="chat-input__field col"
         @keyup.enter="sendMessage"
+        @update:model-value="onInputChange"
       />
       <!-- <q-btn @click="sendMessage"> Send </q-btn> -->
       <q-btn
@@ -65,6 +58,10 @@ import { useMessagesStore } from "src/stores/messages";
 import { onMounted, ref } from "vue";
 import { useChatsStore } from "src/stores/chats";
 import { watch } from "vue";
+import { getSocket } from "src/lib/socket";
+import { useUserStore } from "src/stores/user";
+import { useChannelsStore } from "src/stores/channels";
+import MessageLoadingComponent from "./MessageLoadingComponent.vue";
 
 const messagesStore = useMessagesStore();
 const { messages, loading } = storeToRefs(messagesStore);
@@ -72,9 +69,35 @@ const { messages, loading } = storeToRefs(messagesStore);
 const chatsStore = useChatsStore();
 const { activeChatName, activeChatId } = storeToRefs(chatsStore);
 
+const channelStore = useChannelsStore();
+const { activeChannelName, activeChannelId } = storeToRefs(channelStore);
+
+const userStore = useUserStore();
+const { id: userId, username } = storeToRefs(userStore);
+
 const messageInput = ref("");
 const messageField = ref();
 const sending = ref(false);
+
+const socket = getSocket();
+
+const onInputChange = (val: string | number | null) => {
+  console.log(val);
+  if (val !== "") {
+    socket.emit("channel:typing", {
+      activeChannelId: activeChannelId.value,
+      activeChatId: activeChannelId.value,
+      userId: userId.value,
+      message: val,
+    });
+  } else {
+    socket.emit("channel:stopTyping", {
+      activeChannelId: activeChannelId.value,
+      activeChatId: activeChannelId.value,
+      userId: userId.value,
+    });
+  }
+};
 
 onMounted(() => {
   if (activeChatId.value) {
@@ -88,6 +111,8 @@ watch(activeChatId, async (next) => {
 });
 
 const sendMessage = async () => {
+  const mentionRegex = /@(\w+)/g;
+  
   if (!activeChatId.value || messageInput.value == "") return;
 
   console.log(messageInput.value, activeChatId.value);
@@ -140,6 +165,12 @@ const sendMessage = async () => {
     console.error(err);
   } finally {
     sending.value = false;
+
+    socket.emit("channel:stopTyping", {
+      activeChannelId: activeChannelId.value,
+      activeChatId: activeChannelId.value,
+      userId: userId.value,
+    });
   }
 };
 </script>
