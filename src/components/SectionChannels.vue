@@ -94,7 +94,7 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   socket.emit("channel:subscribe", channelId);
 
   await chatsStore.fetchChats(channelId);
-  channelsStore.setActiveChannel(channelId, channelName);
+  await channelsStore.setActiveChannel(channelId, channelName);
 };
 
 async function submitCreateChannel() {
@@ -138,6 +138,7 @@ async function submitCreateChannel() {
     const created = data.channel;
     channelsStore.addChannel(created);
     channelsStore.setActiveChannel(created.id, created.name);
+    onChannelClick(created.name, created.id);
     create.open = false;
   } catch (e) {
     create.error = e instanceof Error ? e.message : "Network error";

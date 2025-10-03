@@ -5,7 +5,6 @@ export type Status = "online" | "dnd" | "offline";
 export const useUserStore = defineStore("user", {
   state: () => ({
     token: null as string | null,
-
     username: null as string | null,
     status: null as string | null,
     id: null as number | null,
@@ -14,12 +13,12 @@ export const useUserStore = defineStore("user", {
     email: null as string | null,
     createdAt: null as Date | null,
     updatedAt: null as Date | null,
-
+    color: null as string | null
     // user: null as User | null
   }),
   actions: {
-    getUser() {
-      fetch("http://localhost:3333/api/users/me", {
+    async getUser() {
+      await fetch("http://localhost:3333/api/users/me", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -29,6 +28,11 @@ export const useUserStore = defineStore("user", {
           console.log(data);
           this.id = data.id;
           this.username = data.username;
+          this.status = data.status;
+          this.name = data.name;
+          this.surname = data.surname;
+          this.email = data.email;
+          this.color = data.color;
         });
     },
     initFromStorage() {

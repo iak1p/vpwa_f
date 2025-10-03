@@ -1,7 +1,7 @@
 <template>
   <div
     class="channel-icon"
-    :style="{ backgroundColor: prorps.color }"
+    :style="{ backgroundColor: prorps.channel.color }"
     :class="{ 'channel-icon--active': active }"
   >
     <span class="channel-icon__letters">
@@ -23,15 +23,13 @@ import type { Channel } from "./models";
 export interface ChannelComponentProps {
   channel: Channel;
   active?: boolean;
-  color?: string;
 }
 
 const prorps = withDefaults(defineProps<ChannelComponentProps>(), {
-  color: "#26A69A",
   active: false,
 });
 
-console.log("PRORPS", prorps);
+console.log("PRORPS", prorps.channel);
 </script>
 
 <style scoped>

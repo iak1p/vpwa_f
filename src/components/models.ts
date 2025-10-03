@@ -20,6 +20,8 @@ export interface Channel {
   owner: any;
   createdAt: string;
   updatedAt: string;
+  joinedAt: string;
+  color: string
 }
 
 export interface Chat {
@@ -37,6 +39,7 @@ export interface Sender {
   surname: string;
   status: string;
   id: number;
+  color: string;
 }
 
 export interface Message {

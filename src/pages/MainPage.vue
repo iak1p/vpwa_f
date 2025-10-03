@@ -42,7 +42,16 @@ const router = useRouter();
 const ownerLabel = ref<string | null>(null);
 const socket = getSocket();
 
+async function ensureNotificationPermission() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const perm = await Notification.requestPermission();
+  return perm === "granted";
+}
+
 onMounted(async () => {
+  await ensureNotificationPermission();
   await channelsStore.fetchChannels();
   await userStore.getUser();
 

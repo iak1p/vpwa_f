@@ -1,5 +1,5 @@
-import { useChatsStore } from "src/stores/chats";
-const chatsStore = useChatsStore();
+// import { useChatsStore } from "src/stores/chats";
+// const chatsStore = useChatsStore();
 // const { loading: chatsLoading } = storeToRefs(chatsStore);
 
 import { useChannelsStore } from "src/stores/channels";
