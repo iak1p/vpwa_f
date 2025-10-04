@@ -19,6 +19,7 @@
               >{{ m.surname?.[0]?.toUpperCase()
               }}{{ m.name?.[0]?.toUpperCase() }}</span
             >
+
             <span class="bm-status" :class="statusClass(m.status)"></span>
 
             <div class="buble" :class="{ active: m.showMessage }">
@@ -28,9 +29,17 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-white"
-            >{{ m.surname }} {{ m.name }}</q-item-label
-          >
+          <div class="" style="display: flex">
+            <q-item-label class="text-white"
+              >{{ m.surname }} {{ m.name }}</q-item-label
+            >
+            <q-icon
+              v-if="(owner.id == m.id)"
+              name="star"
+              color="yellow"
+              style="padding-left: 5px"
+            />
+          </div>
           <q-item-label
             caption
             class="row items-center q-gutter-xs text-grey-5"
@@ -60,7 +69,7 @@ import { useChannelsStore } from "src/stores/channels";
 import { useMembersStore, type Status } from "src/stores/members";
 
 const channels = useChannelsStore();
-const { activeChannelId } = storeToRefs(channels);
+const { activeChannelId, owner } = storeToRefs(channels);
 
 const membersStore = useMembersStore();
 const { members, loading } = storeToRefs(membersStore);

@@ -1,5 +1,5 @@
 <template>
-  <section class="panel q-pa-md sidebar scroll-y">
+  <section class="panel q-pa-md sidebar scroll-y" style="padding-bottom: 75px">
     <ChannelComponent
       v-for="channel in channels"
       :key="channel.name"
@@ -91,6 +91,7 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   console.log("Channel clicked:", channelName, channelId);
 
   const socket = getSocket();
+  socket.emit("channel:unsubscribe", activeChannelId.value);
   socket.emit("channel:subscribe", channelId);
 
   await chatsStore.fetchChats(channelId);

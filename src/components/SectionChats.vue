@@ -172,6 +172,7 @@ const { activeChannelId, activeChannelName, owner, activeChannel } =
   storeToRefs(channelsStore);
 
 import { channelLeave } from "src/services/channelLeave";
+import { sendSystemMessage } from "src/services/sendMessage";
 
 // const { token } = storeToRefs(userStore);
 
@@ -223,7 +224,8 @@ async function submitAddMember(add: addProps) {
           : "Failed to add member");
       return;
     }
-
+    sendSystemMessage(`${add.username.trim()} join channel`);
+    
     add.open = false;
   } catch (e) {
     add.error = e instanceof Error ? e.message : "Network error";
