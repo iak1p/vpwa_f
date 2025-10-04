@@ -97,5 +97,14 @@ export const useMembersStore = defineStore("members", {
         this.loading = false;
       }
     },
+    findByUsername(nick: string) {
+      const n = nick.replace(/^@/, "").trim().toLowerCase();
+      return this.members.find((m) => (m.username || "").toLowerCase() === n);
+    },
+
+    removeMember(userId: number) {
+      const i = this.members.findIndex((m) => m.id === userId);
+      if (i !== -1) this.members.splice(i, 1);
+    },
   },
 });
