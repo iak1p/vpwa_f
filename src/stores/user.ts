@@ -13,7 +13,8 @@ export const useUserStore = defineStore("user", {
     email: null as string | null,
     createdAt: null as Date | null,
     updatedAt: null as Date | null,
-    color: null as string | null
+    color: null as string | null,
+    notification: null as boolean | null,
     // user: null as User | null
   }),
   actions: {
@@ -33,6 +34,20 @@ export const useUserStore = defineStore("user", {
           this.surname = data.surname;
           this.email = data.email;
           this.color = data.color;
+          this.notification = data.notification;
+        });
+    },
+    async changeNotification() {
+      await fetch("http://localhost:3333/api/users/notification", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          this.notification = data.notification
         });
     },
     initFromStorage() {

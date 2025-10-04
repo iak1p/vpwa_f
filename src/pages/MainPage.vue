@@ -98,8 +98,10 @@ async function handleLogout() {
 }
 
 .add-channel-btn {
-  width: 50px;
-  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 50px;
+  max-height: 50px;
   border-radius: 10px;
 }
 </style>

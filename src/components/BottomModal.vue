@@ -34,8 +34,14 @@
           side
           style="display: flex; flex-direction: row; align-items: center"
         >
-          <q-btn flat round dense icon="mic" class="text-grey-4" />
-          <q-btn flat round dense icon="settings" class="text-grey-4 q-ml-xs" />
+          <q-btn
+            flat
+            round
+            dense
+            :icon="notification ? 'notifications_active' : 'notifications'"
+            class="text-grey-4"
+            @click="user.changeNotification"
+          />
           <q-btn
             flat
             round
@@ -64,6 +70,7 @@ const {
   username: usernameRef,
   status,
   color,
+  notification,
 } = storeToRefs(user);
 const username = computed((): string => usernameRef.value ?? "user");
 const channels = useChannelsStore();

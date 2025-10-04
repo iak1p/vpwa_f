@@ -1,5 +1,17 @@
 <template>
   <div
+    v-if="props.message.type == 'system'"
+    class=""
+    style="
+      color: white;
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    "
+  >
+    {{ message.content }}
+  </div>
+  <div
+    v-else
     class="col"
     :class="{
       'message-ping': ping,

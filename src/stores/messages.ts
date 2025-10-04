@@ -17,12 +17,12 @@ export const useMessagesStore = defineStore("messages", {
     checkNotification(message: Message) {
       const mentionRegex = /@(\w+)/g;
       const userStore = useUserStore();
-      const { status, username } = storeToRefs(userStore);
+      const { status, username, notification } = storeToRefs(userStore);
 
       if (AppVisibility.appVisible) return;
       if (Notification.permission !== "granted") return;
       if (status.value === "dnd" || status.value === "offline") return;
-      if (message.type === "text") return;
+      if (message.type === "text" && !notification.value) return;
 
       if (message.type === "ping") {
         let me = false;
@@ -35,14 +35,12 @@ export const useMessagesStore = defineStore("messages", {
         if (!me) return;
       }
 
-      if (true) {
-        new Notification(
-          `${message.sender.name} ${message.sender.surname} (@${message.sender.username})`,
-          {
-            body: `${message.content.slice(0, 60)}...`,
-          }
-        );
-      }
+      new Notification(
+        `${message.sender.name} ${message.sender.surname} (@${message.sender.username})`,
+        {
+          body: `${message.content.slice(0, 60)}...`,
+        }
+      );
     },
     initRealtime() {
       if (this.initedRealtime) return;
