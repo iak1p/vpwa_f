@@ -8,7 +8,6 @@
       standout
       input-class="text-white"
       class="chat-input__field col q-pa-md"
-      @update:model-value="onInputChange"
       @change="onInputBlur"
     />
 
@@ -42,10 +41,6 @@ const cmdError = ref<string | null>(null);
 const cmdInfo = ref<string | null>(null);
 const membersStore = useMembersStore();
 const channelStore = useChannelsStore();
-
-const onInputChange = (val: string | number | null) => {
-  console.log("В процессе ввода:", val);
-};
 
 const onInputBlur = async (val: string) => {
   const commands = val.split(" ");

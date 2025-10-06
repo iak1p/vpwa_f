@@ -1,54 +1,38 @@
 <template>
   <div class="col message">
     <div class="user-photo">
-      {{ message.sender.name?.[0] }}{{ message.sender.surname?.[0] }}
     </div>
     <div class="">
-      <div class="row" style="align-items: center; gap: 10px">
-        <p class="username">{{ message.sender.name }} {{ message.sender.surname }}</p>
-        <p class="date">
-          {{
-            new Date(message.createdAt).toLocaleDateString("de-DE", {
-              year: "2-digit",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          }}
-        </p>
+      <div class="row" style="align-items: center; gap: 10px; padding-bottom: 5px;">
+        <div
+          class="loader"
+          style="
+            width: 100px;
+            background-color: gray;
+            border-radius: 5px;
+            opacity: 0.3;
+            height: 20px;
+          "
+        ></div>
       </div>
-      <p class="message-content">
-        {{ message.content }}
-      </p>
+
+      <div
+        class="loader"
+        style="
+          width: 450px;
+          background-color: gray;
+          border-radius: 5px;
+          opacity: 0.3;
+          height: 40px;
+          padding-top: 5px;
+        "
+      ></div>
     </div>
   </div>
-  <!-- Надо для сообщений в которых человек был пингнут -->
-  <!-- <div class="col message-ping">
-    <div class="user-photo">AY</div>
-    <div class="">
-      <div class="row" style="align-items: center; gap: 10px">
-        <p class="username">Amin Yapusi</p>
-        <p class="date">21.09.2025 10:06</p>
-      </div>
-      <p class="message-content">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-        cupiditate nulla fugit libero eum, cum blanditiis nostrum asperiores ab
-        ratione reprehenderit dolor delectus velit numquam suscipit, accusamus,
-        dicta labore! Aut?
-      </p>
-    </div>
-  </div> -->
 </template>
 
 <script setup lang="ts">
-import type { Message } from "./models";
 
-export interface MessageComponentProps {
-  message: Message;
-}
-
-defineProps<MessageComponentProps>();
 </script>
 
 <style>

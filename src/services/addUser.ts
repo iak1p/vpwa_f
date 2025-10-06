@@ -1,5 +1,6 @@
 import { useChannelsStore } from "src/stores/channels";
 import { storeToRefs } from "pinia";
+import { sendSystemMessage } from "./sendMessage";
 const channelsStore = useChannelsStore();
 const { activeChannelName } = storeToRefs(channelsStore);
 
@@ -37,6 +38,8 @@ export async function addUser(username: string) {
           : "Failed to add member");
       return { ok: false, message };
     }
+
+    sendSystemMessage(`${username} join channel`);
 
     return { ok: true, message: `@${username} invited`, data };
   } catch (e: any) {
