@@ -12,6 +12,7 @@ export const useMessagesStore = defineStore("messages", {
     messages: [] as any[],
     initedRealtime: false,
     loading: false,
+    nextURL: null as string | null,
   }),
   actions: {
     checkNotification(message: Message) {
@@ -71,14 +72,14 @@ export const useMessagesStore = defineStore("messages", {
         }
       );
     },
-
     clear() {
       this.messages = [];
     },
-    async fetchMessages(channelId: any) {
+    async fetchNewMessages() {
       this.loading = true;
+      console.log("NEW URL", this.nextURL);
 
-      fetch(`http://localhost:3333/api/messages/${channelId}/all`, {
+      fetch(`${this.nextURL}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -86,9 +87,41 @@ export const useMessagesStore = defineStore("messages", {
         .then((res) => res.json())
         .catch((err) => console.error(err))
         .then((data) => {
+          if (data.data?.length == 0) return;
+
+          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          console.log("MESSSAGEEWESS NEWEWEWEWEWE", data.data);
+
+          this.messages.unshift(...data.data);
+          this.nextURL = data.next;
+          console.log("URL", this.nextURL);
+          console.log("NEWWWWW MESSSSAGEESSSS", this.messages);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    async fetchMessages(channelId: any) {
+      this.loading = true;
+
+      fetch(
+        `http://localhost:3333/api/messages/${channelId}/all?offset=0&limit=20`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+        .then((res) => res.json())
+        .catch((err) => console.error(err))
+        .then((data) => {
+          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
           console.log("MESSSAGEEWESS", data);
 
-          this.messages = data;
+          this.messages = data.data;
+          this.nextURL = data.next;
+
+          console.log("URL", this.nextURL);
         })
         .finally(() => {
           this.loading = false;

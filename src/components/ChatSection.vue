@@ -8,22 +8,28 @@
     "
   >
     <q-scroll-area
+      ref="chatScroll"
+      @scroll="onScroll"
       class="chat-body col"
-      style="display: flex; align-items: end; justify-content: end; width: 100%"
+      :content-style="{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        minHeight: '100%',
+      }"
+      style="width: 100%"
     >
-      <div class="" v-if="messages.length == 0">
-        <p>Start a new conversation</p>
+      <div v-if="messages.length === 0">
+        <p>No messages</p>
       </div>
-      <div class="" v-else>
-        <q-list padding class="q-gutter-y-sm" style="height: 100%">
-          <MessageComponent v-for="message in messages" :message="message" v-bind:key="message.id"/>
+      <div v-else>
+        <q-list padding class="q-gutter-y-sm">
+          <MessageComponent v-for="m in messages" :key="m.id" :message="m" />
         </q-list>
-
-        <!-- <q-list padding class="q-gutter-y-sm" style="height: 100%">
-          <MessageLoadingComponent v-for="i in 10" :key="i" />
-        </q-list> -->
       </div>
     </q-scroll-area>
+
+    <!-- <MessageLoadingComponent v-if="loading" v-for="i in 1" :key="i" /> -->
 
     <div
       class="chat-input row items-center q-px-md q-py-sm"
@@ -55,7 +61,7 @@
 import { storeToRefs } from "pinia";
 import MessageComponent from "./MessageComponent.vue";
 import { useMessagesStore } from "src/stores/messages";
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { useChatsStore } from "src/stores/chats";
 import { watch } from "vue";
 import { getSocket } from "src/lib/socket";
@@ -63,9 +69,53 @@ import { useUserStore } from "src/stores/user";
 import { useChannelsStore } from "src/stores/channels";
 // import MessageLoadingComponent from "./MessageLoadingComponent.vue";
 import { useMembersStore } from "src/stores/members";
+import MessageLoadingComponent from "./MessageLoadingComponent.vue";
 
 const messagesStore = useMessagesStore();
 const { messages, loading } = storeToRefs(messagesStore);
+
+const chatScroll = ref<any>(null);
+let top = false;
+
+async function onScroll(details: any) {
+  // details — объект, который Quasar передаёт, с параметрами скролла
+  // details.verticalPosition — текущая позиция
+  // details.verticalSize — полная высота контента
+  // details.verticalContainerSize — видимая область
+
+  if (details.verticalPosition <= 0) {
+    console.log("Доскроллил до верха!");
+    top = true;
+    await messagesStore.fetchNewMessages();
+  }
+}
+
+function scrollToBottom(smooth = false) {
+  const el = chatScroll.value?.getScrollTarget?.();
+  if (!el) return;
+  const to = Math.max(0, el.scrollHeight - el.clientHeight);
+  chatScroll.value.setScrollPosition("vertical", to, smooth ? 300 : 0);
+}
+
+onMounted(async () => {
+  await nextTick();
+  scrollToBottom(false);
+});
+
+watch(
+  () => messages.value.length,
+  async () => {
+    if (top) {
+      top = false;
+      const el = chatScroll.value?.getScrollTarget?.();
+      chatScroll.value.setScrollPosition("vertical", el.scrollTop + 15, 0);
+      return;
+    }
+
+    await nextTick();
+    scrollToBottom(false);
+  }
+);
 
 const chatsStore = useChatsStore();
 const { activeChatName, activeChatId } = storeToRefs(chatsStore);

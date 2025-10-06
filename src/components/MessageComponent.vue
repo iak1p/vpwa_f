@@ -1,13 +1,5 @@
 <template>
-  <div
-    v-if="props.message.type == 'system'"
-    class=""
-    style="
-      color: white;
-      text-align: center;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    "
-  >
+  <div v-if="props.message.type == 'system'" class="system" style="">
     {{ message.content }}
   </div>
   <div
@@ -18,15 +10,15 @@
       message: !ping,
     }"
   >
-    <div class="user-photo" :style="{ backgroundColor: message.sender.color }">
-      {{ message.sender.name?.[0]?.toUpperCase()
-      }}{{ message.sender.surname?.[0]?.toUpperCase() }}
+    <div class="user-photo" :style="{ backgroundColor: message.sender?.color }">
+      {{ message.sender?.name?.[0]?.toUpperCase()
+      }}{{ message.sender?.surname?.[0]?.toUpperCase() }}
     </div>
     <div>
       <div class="row" style="align-items: center; gap: 10px">
         <p class="username">
           <!-- {{ message.sender.name }} {{ message.sender.surname }} -->
-          {{ message.sender.username }}
+          {{ message.sender?.username }}
         </p>
         <p class="date">
           {{
@@ -79,6 +71,15 @@ if (props.message.type == "ping") {
 .date {
   color: gray;
   font-size: 12px;
+}
+.system {
+  color: white;
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: rgba(0, 78, 0, 0.07);
+  margin: 0px 10px 2px;
+  padding: 5px;
+  border-radius: 5px;
 }
 .user-photo {
   width: 30px;

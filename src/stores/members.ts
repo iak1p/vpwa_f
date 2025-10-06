@@ -35,6 +35,7 @@ export const useMembersStore = defineStore("members", {
 
       socket.off("channel:typing");
       socket.off("channel:stopTyping");
+      socket.off("channel:newuser");
 
       socket.on("channel:typing", (typingUserId, message) => {
         if (typingUserId != id.value) {
@@ -46,6 +47,11 @@ export const useMembersStore = defineStore("members", {
         if (typingUserId != id.value) {
           this.unsetTyping(typingUserId);
         }
+      });
+
+      socket.on("channel:newuser", (channel, user) => {
+        console.log("INVITEDDDDDDD", user);
+        this.members.unshift(user)
       });
     },
     clear() {
