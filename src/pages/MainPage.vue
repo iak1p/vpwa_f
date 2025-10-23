@@ -1,13 +1,30 @@
 <template>
   <div class="app-grid">
-    <SectionChannels />
+    <SectionChannels class="col" />
 
     <SectionChats class="col" :owner-label="ownerLabel" />
 
     <ChatSection class="col" v-model:message="message" />
 
-    <RightSection />
+    <RightSection :class="['col', 'right-section', { open: openMembersR }]" />
   </div>
+
+  <q-btn
+    flat
+    round
+    dense
+    color="white"
+    icon="list"
+    style="position: absolute; top: 20px; right: 20px"
+    class="burger-members"
+    @click="openMembers"
+  />
+
+  <div
+    v-show="openMembersR"
+    class="right-overlay"
+    @click.self="openMembersR = false"
+  ></div>
 
   <BottomModal :on-logout="handleLogout" />
 </template>
@@ -26,6 +43,8 @@ import { useChatsStore } from "src/stores/chats";
 import { storeToRefs } from "pinia";
 import { useMessagesStore } from "src/stores/messages";
 import { getSocket } from "src/lib/socket";
+
+const openMembersR = ref(false);
 
 const userStore = useUserStore();
 
@@ -49,6 +68,12 @@ async function ensureNotificationPermission() {
   const perm = await Notification.requestPermission();
   return perm === "granted";
 }
+
+const openMembers = () => {
+  console.log(openMembersR.value);
+
+  openMembersR.value = !openMembersR.value;
+};
 
 onMounted(async () => {
   await ensureNotificationPermission();
@@ -93,6 +118,46 @@ async function handleLogout() {
   grid-template-columns: 80px 350px 1fr 350px;
   height: 100vh;
 }
+.right-section {
+  display: block;
+}
+.burger-members {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .right-section {
+    display: none;
+  }
+  .right-section.open {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    background-color: #1e1e1e;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+  .right-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 900;
+  }
+  .right-section {
+    z-index: 1000;
+  }
+  .app-grid {
+    display: grid;
+    grid-template-columns: 80px 350px 1fr;
+    height: 100vh;
+  }
+  .burger-members {
+    display: block;
+  }
+}
+
 .panel {
   background-color: #282b30;
   border-right: 1px solid #424549;

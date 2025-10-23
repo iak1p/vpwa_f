@@ -140,7 +140,7 @@ async function onSubmit() {
     // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
     userStore.setSession(data.user, tokenStr); 
-    await router.push("/main");
+    await router.push("/");
   } catch (err) {
     if (err instanceof Error) {
       errorMessage.value = err.message;

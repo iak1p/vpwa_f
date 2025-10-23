@@ -17,11 +17,40 @@ export interface Channel {
   name: string;
   description: string | null;
   isPrivate: boolean;
-  owner: any;
+  owner: Owner;
   createdAt: string;
   updatedAt: string;
   joinedAt: string;
-  color: string
+  color: string;
+}
+
+export interface Message{
+  id: number;
+  content: string;
+  senderId: number;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface User {
+  id: number;
+  username: string;
+  name: string | null;
+  surname: string | null;
+  status: string | null;
+  color: string | null;
+  email: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  notification?: boolean | null;
+}
+
+export interface Owner {
+  id: number;
+  username: string;
+  name: string;
+  surname: string;
 }
 
 export interface Chat {

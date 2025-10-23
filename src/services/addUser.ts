@@ -1,6 +1,7 @@
 import { useChannelsStore } from "src/stores/channels";
 import { storeToRefs } from "pinia";
 import { sendSystemMessage } from "./sendMessage";
+import { type User } from "src/components/models";
 const channelsStore = useChannelsStore();
 const { activeChannelName } = storeToRefs(channelsStore);
 
@@ -24,7 +25,7 @@ export async function addUser(username: string) {
       },
     });
 
-    const data = await res.json().catch(() => ({} as any));
+    const data = await res.json().catch(() => ({} as User));
 
     if (!res.ok) {
       const message =
@@ -39,10 +40,11 @@ export async function addUser(username: string) {
       return { ok: false, message };
     }
 
-    sendSystemMessage(`${username} join channel`);
+    await sendSystemMessage(`${username} join channel`);
 
     return { ok: true, message: `@${username} invited`, data };
-  } catch (e: any) {
-    return { ok: false, message: e?.message || "Network error" };
+  } catch (e) {
+    const err = e as Error;
+    return { ok: false, message: err?.message || "Network error" };
   }
 }

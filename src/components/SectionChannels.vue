@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import ChannelComponent from "./ChannelComponent.vue";
 import { storeToRefs } from "pinia";
 
@@ -87,6 +87,12 @@ import { getSocket } from "src/lib/socket";
 
 // defineProps<SectionChannelsProps>();
 
+onMounted(() => {
+  console.log("SectionChannels mounted");
+
+  channelsStore.noBackFetch();
+});
+
 const onChannelClick = async (channelName: string, channelId: number) => {
   console.log("Channel clicked:", channelName, channelId);
 
@@ -100,7 +106,7 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   // _____
 
   chatsStore.noBackChats(channelId);
-  await channelsStore.setActiveChannel(channelId, channelName);
+  channelsStore.setActiveChannel(channelId, channelName);
 };
 
 async function submitCreateChannel() {
@@ -144,7 +150,7 @@ async function submitCreateChannel() {
     const created = data.channel;
     channelsStore.addChannel(created);
     channelsStore.setActiveChannel(created.id, created.name);
-    onChannelClick(created.name, created.id);
+    await onChannelClick(created.name, created.id);
     create.open = false;
   } catch (e) {
     create.error = e instanceof Error ? e.message : "Network error";
@@ -174,3 +180,37 @@ function closeCreateDialog() {
   if (!create.loading) create.open = false;
 }
 </script>
+
+<style>
+.app-grid {
+  display: grid;
+  grid-template-columns: 80px 350px 1fr 350px;
+  height: 100vh;
+}
+.panel {
+  background-color: #282b30;
+  border-right: 1px solid #424549;
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.add-member-btn {
+  margin-left: 8px;
+}
+
+.add-channel-btn {
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 10px;
+}
+</style>
