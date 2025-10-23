@@ -53,13 +53,12 @@ async function ensureNotificationPermission() {
 onMounted(async () => {
   await ensureNotificationPermission();
 
-
   channelsStore.noBackFetch();
   // _____
   // NO BACK
   // await channelsStore.fetchChannels();
   // _____
-  
+
   userStore.noBackUser();
   // _____
   // NO BACK
@@ -70,7 +69,12 @@ onMounted(async () => {
 
   socket.emit("channel:subscribe", activeChannelId.value);
 
-  await chatsStore.fetchChats(activeChannelId.value);
+  chatsStore.noBackChats(activeChannelId.value);
+  // _____
+  // NO BACK
+  // await chatsStore.fetchChats(activeChannelId.value);
+  // _____
+  // await chatsStore.fetchChats(activeChannelId.value);
 
   if (!activeChatId.value) return;
 

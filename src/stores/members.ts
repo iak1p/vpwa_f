@@ -51,7 +51,7 @@ export const useMembersStore = defineStore("members", {
 
       socket.on("channel:newuser", (channel, user) => {
         console.log("INVITEDDDDDDD", user);
-        this.members.unshift(user)
+        this.members.unshift(user);
       });
     },
     clear() {
@@ -77,6 +77,46 @@ export const useMembersStore = defineStore("members", {
       if (member) {
         member.showMessage = member.showMessage ? false : true;
       }
+    },
+    noBackMembers(channelId: number) {
+      console.log("NO BACK FETCH MEMBERS");
+
+      let members: Member[] = [];
+      if (channelId === 24) {
+        members = [
+          {
+            id: 9,
+            username: "test",
+            name: "Test",
+            surname: "Test",
+            status: "online",
+            color: "#bc4749",
+            showMessage: null,
+          },
+          {
+            id: 10,
+            username: "test2",
+            name: "gfgff",
+            surname: "fgfg",
+            status: "online",
+            color: "#a7c957",
+            showMessage: null,
+          },
+        ];
+      } else if (channelId === 25) {
+        members = [
+          {
+            id: 9,
+            username: "test",
+            name: "Test",
+            surname: "Test",
+            status: "online",
+            color: "#bc4749",
+            showMessage: null,
+          },
+        ];
+      }
+      this.members = members;
     },
     async fetchByChannelId(channelId: number) {
       this.loading = true;

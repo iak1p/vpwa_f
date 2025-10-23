@@ -94,7 +94,12 @@ const onChannelClick = async (channelName: string, channelId: number) => {
   socket.emit("channel:unsubscribe", activeChannelId.value);
   socket.emit("channel:subscribe", channelId);
 
-  await chatsStore.fetchChats(channelId);
+  // _____
+  // NO BACK
+  // await chatsStore.fetchChats(channelId);
+  // _____
+
+  chatsStore.noBackChats(channelId);
   await channelsStore.setActiveChannel(channelId, channelName);
 };
 

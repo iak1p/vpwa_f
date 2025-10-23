@@ -225,7 +225,7 @@ async function submitAddMember(add: addProps) {
       return;
     }
     sendSystemMessage(`${add.username.trim()} join channel`);
-    
+
     add.open = false;
   } catch (e) {
     add.error = e instanceof Error ? e.message : "Network error";
@@ -455,5 +455,8 @@ function closeCreateChatDialog() {
   font-size: 12px;
   color: #ffffff;
   opacity: 0.9;
+}
+.block {
+  color: white;
 }
 </style>

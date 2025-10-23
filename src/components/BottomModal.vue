@@ -156,7 +156,8 @@ async function cycleStatus() {
   try {
     await user.setStatus(next);
     if (activeChannelId.value) {
-      await membersStore.fetchByChannelId(activeChannelId.value);
+      // await membersStore.fetchByChannelId(activeChannelId.value);
+      membersStore.noBackMembers(activeChannelId.value)
     }
   } catch (e) {
     console.error(e);
