@@ -456,4 +456,7 @@ function closeCreateChatDialog() {
   color: #ffffff;
   opacity: 0.9;
 }
+.block {
+  color: white;
+}
 </style>

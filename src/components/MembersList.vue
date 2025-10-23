@@ -80,13 +80,15 @@ const showMessage = (userId: number) => {
 
 onMounted(async () => {
   if (activeChannelId.value) {
-    await membersStore.fetchByChannelId(activeChannelId.value);
+    // await membersStore.fetchByChannelId(activeChannelId.value);
+    membersStore.noBackMembers(activeChannelId.value);
   }
 });
 
 watch(activeChannelId, async (id) => {
   membersStore.clear();
-  if (id) await membersStore.fetchByChannelId(id);
+  // if (id) membersStore.fetchByChannelId(id);
+  if(id) membersStore.noBackMembers(id)
 });
 
 function statusClass(st?: Status | null) {
