@@ -52,8 +52,19 @@ async function ensureNotificationPermission() {
 
 onMounted(async () => {
   await ensureNotificationPermission();
-  await channelsStore.fetchChannels();
-  await userStore.getUser();
+
+
+  channelsStore.noBackFetch();
+  // _____
+  // NO BACK
+  // await channelsStore.fetchChannels();
+  // _____
+  
+  userStore.noBackUser();
+  // _____
+  // NO BACK
+  // await userStore.getUser();
+  // _____
 
   if (!activeChannelId.value) return;
 

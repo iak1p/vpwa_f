@@ -18,6 +18,18 @@ export const useUserStore = defineStore("user", {
     // user: null as User | null
   }),
   actions: {
+    noBackUser() {
+      this.username = "Test";
+      this.status = "dnd";
+      this.id = 9;
+      this.name = "Test";
+      this.surname = "Test";
+      this.email = "test@test.com";
+      this.color = "#bc4749";
+      this.notification = true;
+      this.createdAt = new Date("2025-10-23T08:02:44.096+00:00");
+      this.updatedAt = new Date("2025-10-23T08:04:52.475+00:00");
+    },
     async getUser() {
       await fetch("http://localhost:3333/api/users/me", {
         headers: {
@@ -26,7 +38,7 @@ export const useUserStore = defineStore("user", {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
+          console.log("USERRR", data);
           this.id = data.id;
           this.username = data.username;
           this.status = data.status;
@@ -47,7 +59,7 @@ export const useUserStore = defineStore("user", {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          this.notification = data.notification
+          this.notification = data.notification;
         });
     },
     initFromStorage() {
