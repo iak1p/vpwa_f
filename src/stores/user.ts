@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { type User } from "src/components/models";
 
 export type Status = "online" | "dnd" | "offline";
 
@@ -79,7 +80,7 @@ export const useUserStore = defineStore("user", {
         this.clearSession();
       }
     },
-    setSession(user: any, token: string) {
+    setSession(user: User, token: string) {
       this.token = token;
       this.id = user?.id ?? null;
       this.username = user?.username ?? null;

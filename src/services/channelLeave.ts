@@ -32,7 +32,7 @@ export async function channelLeave() {
     if (!res.ok)
       throw new Error(data?.message || "Failed to leave/delete channel");
 
-    sendSystemMessage(`${username.value} leave channel`);
+    await sendSystemMessage(`${username.value} leave channel`);
     // channels.value = channels.value.filter((c) => c.name !== name);
     channelsStore.removeChannel(activeChannelId.value);
     // activeChannel.value = channels[0]?.name ?? "";

@@ -101,7 +101,7 @@ async function onSubmit() {
     userStore.setSession(data.user, tokenStr);
     console.log(data, data.user, tokenStr);
 
-    await router.push("/main");
+    await router.push("/");
   } catch (err) {
     if (err instanceof Error) {
       errorMessage.value = err.message;

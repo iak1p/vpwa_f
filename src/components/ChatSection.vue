@@ -69,14 +69,16 @@ import { useUserStore } from "src/stores/user";
 import { useChannelsStore } from "src/stores/channels";
 // import MessageLoadingComponent from "./MessageLoadingComponent.vue";
 import { useMembersStore } from "src/stores/members";
-import MessageLoadingComponent from "./MessageLoadingComponent.vue";
+// import MessageLoadingComponent from "./MessageLoadingComponent.vue";
 
 const messagesStore = useMessagesStore();
-const { messages, loading } = storeToRefs(messagesStore);
+const { messages } = storeToRefs(messagesStore);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const chatScroll = ref<any>(null);
 let top = false;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function onScroll(details: any) {
   // details — объект, который Quasar передаёт, с параметрами скролла
   // details.verticalPosition — текущая позиция
@@ -121,13 +123,13 @@ const chatsStore = useChatsStore();
 const { activeChatName, activeChatId } = storeToRefs(chatsStore);
 
 const channelStore = useChannelsStore();
-const { activeChannelName, activeChannelId } = storeToRefs(channelStore);
+const { activeChannelId } = storeToRefs(channelStore);
 
 const memberslStore = useMembersStore();
 const { members } = storeToRefs(memberslStore);
 
 const userStore = useUserStore();
-const { id: userId, username } = storeToRefs(userStore);
+const { id: userId } = storeToRefs(userStore);
 
 const messageInput = ref("");
 const messageField = ref();
@@ -153,9 +155,9 @@ const onInputChange = (val: string | number | null) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (activeChatId.value) {
-    messagesStore.fetchMessages(activeChatId.value);
+    await messagesStore.fetchMessages(activeChatId.value);
   }
 });
 
