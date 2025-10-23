@@ -16,6 +16,55 @@ export const useChannelsStore = defineStore("channels", {
     owner: {} as any,
   }),
   actions: {
+    noBackFetch() {
+      console.error("NO BACK FETCH CHANNELS");
+      const c: Channel[] = [
+        {
+          id: 24,
+          name: "test chanel",
+          isPrivate: false,
+          ownerId: 9,
+          createdAt: "2025-10-23T08:03:02.361+00:00",
+          color: "#e9c46a",
+          owner: {
+            id: 9,
+            username: "test",
+            name: "Test",
+            surname: "Test",
+          },
+          role: "owner",
+          reports: 0,
+          joinedAt: "2025-10-23T08:03:02.403Z",
+          banned: false,
+          kick_voters: [],
+        },
+        {
+          id: 25,
+          name: "test chnnel 2",
+          isPrivate: false,
+          ownerId: 9,
+          createdAt: "2025-10-23T10:27:37.328+00:00",
+          color: "#e76f51",
+          owner: {
+            id: 9,
+            username: "test",
+            name: "Test",
+            surname: "Test",
+          },
+          role: "owner",
+          reports: 0,
+          joinedAt: "2025-10-23T10:27:37.401Z",
+          banned: false,
+          kick_voters: [],
+        },
+      ];
+      c?.sort((a, b) => b.joinedAt.localeCompare(a.joinedAt));
+      this.channels = c;
+      this.activeChannelId = c[0]?.id ?? null;
+      this.activeChannelName = c[0]?.name ?? null;
+      this.activeChannel = c[0] ?? null;
+      this.owner = c[0]?.owner ?? null;
+    },
     initRealtime() {
       if (this.initedRealtime) return;
       this.initedRealtime = true;
