@@ -5,11 +5,11 @@ import { defineStore, storeToRefs } from "pinia";
 import { useChatsStore } from "./chats";
 import { AppVisibility } from "quasar";
 import { useUserStore } from "./user";
-import { Message } from "src/components/models";
+import { type Message } from "src/components/models";
 
 export const useMessagesStore = defineStore("messages", {
   state: () => ({
-    messages: [] as any[],
+    messages: [] as Message[],
     initedRealtime: false,
     loading: false,
     nextURL: null as string | null,
@@ -53,7 +53,7 @@ export const useMessagesStore = defineStore("messages", {
       socket.off("message:new");
       socket.on(
         "message:new",
-        ({ chatId, message }: { chatId: number | string; message: any }) => {
+        ({ chatId, message }: { chatId: number | string; message: Message }) => {
           const idNum = Number(chatId);
           if (idNum !== activeChatId.value) return;
 
@@ -79,7 +79,7 @@ export const useMessagesStore = defineStore("messages", {
       this.loading = true;
       console.log("NEW URL", this.nextURL);
 
-      fetch(`${this.nextURL}`, {
+      await fetch(`${this.nextURL}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -89,7 +89,7 @@ export const useMessagesStore = defineStore("messages", {
         .then((data) => {
           if (data.data?.length == 0) return;
 
-          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          data.data?.sort((a: Message, b: Message) => a.createdAt.localeCompare(b.createdAt));
           console.log("MESSSAGEEWESS NEWEWEWEWEWE", data.data);
 
           this.messages.unshift(...data.data);
@@ -101,10 +101,10 @@ export const useMessagesStore = defineStore("messages", {
           this.loading = false;
         });
     },
-    async fetchMessages(channelId: any) {
+    async fetchMessages(channelId: number) {
       this.loading = true;
 
-      fetch(
+      await fetch(
         `http://localhost:3333/api/messages/${channelId}/all?offset=0&limit=20`,
         {
           headers: {
@@ -115,7 +115,7 @@ export const useMessagesStore = defineStore("messages", {
         .then((res) => res.json())
         .catch((err) => console.error(err))
         .then((data) => {
-          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          data.data?.sort((a: Message, b: Message) => a.createdAt.localeCompare(b.createdAt));
           console.log("MESSSAGEEWESS", data);
 
           this.messages = data.data;
@@ -127,7 +127,7 @@ export const useMessagesStore = defineStore("messages", {
           this.loading = false;
         });
     },
-    addNewMessage(message: any) {
+    addNewMessage(message: Message) {
       this.messages.push(message);
 
       if (this.messages.some((m) => m.id === message.id)) return;

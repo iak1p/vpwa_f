@@ -118,7 +118,7 @@ const onInputBlur = async (val: string) => {
       } else {
         try {
           const channelId = Number(channelStore.activeChannelId);
-          const { message, appliedBan, votes } = await kickUserById(
+          const { appliedBan, votes } = await kickUserById(
             channelId,
             target.id
           );
@@ -131,8 +131,9 @@ const onInputBlur = async (val: string) => {
           if (appliedBan) {
             membersStore.removeMember(target.id);
           }
-        } catch (e: any) {
-          cmdError.value = e?.message || "Kick failed";
+        } catch (e) {
+          const err = e as Error;
+          cmdError.value = err?.message || "Kick failed";
           setTimeout(() => (cmdError.value = null), 4000);
         }
       }

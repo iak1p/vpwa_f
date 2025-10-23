@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import type { Channel } from "src/components/models";
+import type { Channel, Owner } from "src/components/models";
 import { getSocket } from "src/lib/socket";
 import { useUserStore } from "src/stores/user";
 // const userStore = useUserStore();
@@ -13,12 +13,13 @@ export const useChannelsStore = defineStore("channels", {
     activeChannelName: null as string | null,
     activeChannel: null as Channel | null,
     initedRealtime: false,
-    owner: {} as any,
+    owner: {} as Owner | null,
   }),
   actions: {
     noBackFetch() {
       console.error("NO BACK FETCH CHANNELS");
-      const c: Channel[] = [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const c: any[] = [
         {
           id: 24,
           name: "test chanel",
@@ -135,9 +136,8 @@ export const useChannelsStore = defineStore("channels", {
       this.activeChannelName = channelName;
       this.activeChannel =
         this.channels.find((channel) => channel.id == channelId) ?? null;
-      this.owner = this.channels.find(
-        (channel) => channel.id == channelId
-      )?.owner;
+      this.owner =
+        this.channels.find((channel) => channel.id == channelId)?.owner ?? null;
     },
   },
 });

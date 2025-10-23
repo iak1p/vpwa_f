@@ -34,7 +34,7 @@
               >{{ m.surname }} {{ m.name }}</q-item-label
             >
             <q-icon
-              v-if="(owner.id == m.id)"
+              v-if="(owner?.id == m.id)"
               name="star"
               color="yellow"
               style="padding-left: 5px"
@@ -84,9 +84,9 @@ onMounted(async () => {
   }
 });
 
-watch(activeChannelId, (id) => {
+watch(activeChannelId, async (id) => {
   membersStore.clear();
-  if (id) membersStore.fetchByChannelId(id);
+  if (id) await membersStore.fetchByChannelId(id);
 });
 
 function statusClass(st?: Status | null) {
