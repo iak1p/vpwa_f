@@ -6,7 +6,7 @@
       class="overlay-card"
       style="background-color: #282b30; border: 1px solid #424549"
     >
-      <q-item class="q-pa-sm" style="width: 410px">
+      <q-item class="q-pa-sm">
         <q-item-section avatar>
           <div
             class="bm-avatar"

@@ -1,10 +1,12 @@
 <template>
   <div class="app-grid">
-    <SectionChannels class="col" />
+    <div :class="['col', 'left-section', { open: openChanelsR }]">
+      <SectionChannels class="col" />
 
-    <SectionChats class="col" :owner-label="ownerLabel" />
+      <SectionChats class="col" :owner-label="ownerLabel" />
+    </div>
 
-    <ChatSection class="col" v-model:message="message" />
+    <ChatSection class="col sec-chat" v-model:message="message" />
 
     <RightSection :class="['col', 'right-section', { open: openMembersR }]" />
   </div>
@@ -20,13 +22,33 @@
     @click="openMembers"
   />
 
+  <q-btn
+    flat
+    round
+    dense
+    color="white"
+    icon="arrow_forward"
+    style="position: absolute; top: 20px; left: 20px"
+    class="burger-channels"
+    @click="openChanels"
+  />
+
   <div
     v-show="openMembersR"
     class="right-overlay"
     @click.self="openMembersR = false"
   ></div>
 
-  <BottomModal :on-logout="handleLogout" />
+  <div
+    v-show="openChanelsR"
+    class="left-overlay"
+    @click.self="openChanelsR = false"
+  ></div>
+
+  <BottomModal
+    :on-logout="handleLogout"
+    :class="['bottom-section', { open: openChanelsR }]"
+  />
 </template>
 
 <script setup lang="ts">
@@ -45,6 +67,7 @@ import { useMessagesStore } from "src/stores/messages";
 import { getSocket } from "src/lib/socket";
 
 const openMembersR = ref(false);
+const openChanelsR = ref(false);
 
 const userStore = useUserStore();
 
@@ -73,6 +96,12 @@ const openMembers = () => {
   console.log(openMembersR.value);
 
   openMembersR.value = !openMembersR.value;
+};
+
+const openChanels = () => {
+  console.log(openChanelsR.value);
+
+  openChanelsR.value = !openChanelsR.value;
 };
 
 onMounted(async () => {
@@ -115,7 +144,7 @@ async function handleLogout() {
 <style>
 .app-grid {
   display: grid;
-  grid-template-columns: 80px 350px 1fr 350px;
+  grid-template-columns: 430px 1fr 350px;
   height: 100vh;
 }
 .right-section {
@@ -124,8 +153,21 @@ async function handleLogout() {
 .burger-members {
   display: none;
 }
+.burger-channels {
+  display: none;
+}
+.left-section {
+  display: grid;
+  grid-template-columns: 80px 350px;
+}
+.bottom-section {
+  width: 410px;
+}
 
 @media (max-width: 1200px) {
+  .sec-chat {
+    padding-left: 50px;
+  }
   .right-section {
     display: none;
   }
@@ -153,8 +195,55 @@ async function handleLogout() {
     grid-template-columns: 80px 350px 1fr;
     height: 100vh;
   }
+  .burger-channels {
+    display: block;
+  }
+
+  .bottom-section.open {
+    display: block;
+    width: 340px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+  .bottom-section {
+    z-index: 1000;
+  }
+  .bottom-section {
+    display: none;
+  }
+
+  .left-section.open {
+    display: grid;
+    grid-template-columns: 80px 280px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #1e1e1e;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+  .left-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 900;
+  }
+  .left-section {
+    z-index: 1000;
+  }
   .burger-members {
     display: block;
+  }
+
+  .left-section {
+    display: none;
+  }
+  .app-grid {
+    grid-template-columns: 1fr;
   }
 }
 
