@@ -77,7 +77,7 @@
         <div v-if="errorMessage" class="full-row error-message">
           {{ errorMessage }}
         </div>
-        
+
         <q-btn
           :loading="loading"
           label="Create account"
@@ -85,6 +85,9 @@
           class="full-row text-weight-bold submit-btn"
         />
       </q-form>
+      <p class="q-mt-md text-center">
+        Already have an account? <router-link to="/login">Log in</router-link>
+      </p>
     </div>
   </q-page>
 </template>
@@ -139,8 +142,8 @@ async function onSubmit() {
     localStorage.setItem("token", tokenStr);
     // localStorage.setItem("user", JSON.stringify(data?.user ?? null));
 
-    userStore.setSession(data.user, tokenStr); 
-    await router.push("/main");
+    userStore.setSession(data.user, tokenStr);
+    await router.push("/");
   } catch (err) {
     if (err instanceof Error) {
       errorMessage.value = err.message;

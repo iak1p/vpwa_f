@@ -58,6 +58,11 @@
         <q-btn label="Sign in" type="submit" class="submit-btn full-width" />
         <!--color: "primary" -->
       </q-form>
+
+      <p class="q-mt-md text-center">
+        Don't have an account?
+        <router-link to="/register">Register</router-link>
+      </p>
     </div>
   </q-page>
 </template>
@@ -101,7 +106,7 @@ async function onSubmit() {
     userStore.setSession(data.user, tokenStr);
     console.log(data, data.user, tokenStr);
 
-    await router.push("/main");
+    await router.push("/");
   } catch (err) {
     if (err instanceof Error) {
       errorMessage.value = err.message;

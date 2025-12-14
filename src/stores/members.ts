@@ -51,8 +51,21 @@ export const useMembersStore = defineStore("members", {
 
       socket.on("channel:newuser", (channel, user) => {
         console.log("INVITEDDDDDDD", user);
-        this.members.unshift(user)
+        this.members.unshift(user);
       });
+    },
+    destroyRealtime() {
+      const socket = getSocket();
+      socket.off("channel:new");
+      // if (!this.initedRealtime) return;
+      // this.initedRealtime = false;
+
+      // const socket = getSocket();
+
+      // if (this._onChannelNew) {
+      //   socket.off("channel:new", this._onChannelNew);
+      //   this._onChannelNew = null;
+      // }
     },
     clear() {
       this.members = [];

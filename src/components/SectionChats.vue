@@ -224,7 +224,7 @@ async function submitAddMember(add: addProps) {
           : "Failed to add member");
       return;
     }
-    sendSystemMessage(`${add.username.trim()} join channel`);
+    await sendSystemMessage(`${add.username.trim()} join channel`);
     
     add.open = false;
   } catch (e) {

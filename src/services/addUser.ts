@@ -23,7 +23,7 @@ export async function addUser(username: string) {
         Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
       },
     });
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await res.json().catch(() => ({} as any));
 
     if (!res.ok) {
@@ -39,10 +39,13 @@ export async function addUser(username: string) {
       return { ok: false, message };
     }
 
-    sendSystemMessage(`${username} join channel`);
+    await sendSystemMessage(`${username} join channel`);
 
     return { ok: true, message: `@${username} invited`, data };
-  } catch (e: any) {
-    return { ok: false, message: e?.message || "Network error" };
+  } catch (e) {
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : "Network error",
+    };
   }
 }

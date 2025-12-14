@@ -47,7 +47,7 @@ export const useUserStore = defineStore("user", {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          this.notification = data.notification
+          this.notification = data.notification;
         });
     },
     initFromStorage() {
@@ -67,6 +67,7 @@ export const useUserStore = defineStore("user", {
         this.clearSession();
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setSession(user: any, token: string) {
       this.token = token;
       this.id = user?.id ?? null;

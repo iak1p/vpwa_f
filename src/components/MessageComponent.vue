@@ -77,7 +77,7 @@ if (props.message.type == "ping") {
   text-align: center;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: rgba(0, 78, 0, 0.07);
-  margin: 0px 10px 2px;
+  margin: 10px 10px 2px;
   padding: 5px;
   border-radius: 5px;
 }

@@ -6,7 +6,11 @@
       <SectionChats class="col" :owner-label="ownerLabel" />
     </div>
 
-    <ChatSection class="col sec-chat" v-model:message="message" />
+    <ChatSection
+      class="col sec-chat"
+      v-model:message="message"
+      @open-members="openMembersR = true"
+    />
 
     <RightSection :class="['col', 'right-section', { open: openMembersR }]" />
   </div>
@@ -65,6 +69,7 @@ import { useChatsStore } from "src/stores/chats";
 import { storeToRefs } from "pinia";
 import { useMessagesStore } from "src/stores/messages";
 import { getSocket } from "src/lib/socket";
+import { watch } from "vue";
 
 const openMembersR = ref(false);
 const openChanelsR = ref(false);
@@ -122,21 +127,60 @@ onMounted(async () => {
 
 async function handleLogout() {
   localStorage.clear();
+  messagesStore.clear();
+  chatsStore.clear();
+  channelsStore.clear();
   await router.replace("/login");
 }
+
+watch(
+  () => userStore.status,
+  async (status) => {
+    if (status !== "offline") {
+      await channelsStore.updateChannels();
+      if (!activeChannelId.value) return;
+      socket.emit("channel:subscribe", activeChannelId.value);
+
+      await chatsStore.updateChats(activeChannelId.value);
+
+      if (!activeChatId.value) return;
+
+      await messagesStore.fetchMessages(activeChatId.value);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style>
 .app-grid {
   display: grid;
-  grid-template-columns: 430px 1fr 350px;
+  grid-template-columns: 430px 1fr;
   height: 100vh;
 }
 .right-section {
-  display: block;
-}
-.burger-members {
   display: none;
+  width: 350px;
+}
+.right-section.open {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  background-color: #1e1e1e;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+.right-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 900;
+}
+
+.burger-members {
+  display: block;
 }
 .burger-channels {
   display: none;

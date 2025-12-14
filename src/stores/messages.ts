@@ -5,11 +5,11 @@ import { defineStore, storeToRefs } from "pinia";
 import { useChatsStore } from "./chats";
 import { AppVisibility } from "quasar";
 import { useUserStore } from "./user";
-import { Message } from "src/components/models";
+import type { Message } from "src/components/models";
 
 export const useMessagesStore = defineStore("messages", {
   state: () => ({
-    messages: [] as any[],
+    messages: [] as Message[],
     initedRealtime: false,
     loading: false,
     nextURL: null as string | null,
@@ -53,6 +53,7 @@ export const useMessagesStore = defineStore("messages", {
       socket.off("message:new");
       socket.on(
         "message:new",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ({ chatId, message }: { chatId: number | string; message: any }) => {
           const idNum = Number(chatId);
           if (idNum !== activeChatId.value) return;
@@ -72,14 +73,28 @@ export const useMessagesStore = defineStore("messages", {
         }
       );
     },
+    destroyRealtime() {
+      const socket = getSocket();
+      socket.off("channel:new");
+      // if (!this.initedRealtime) return;
+      // this.initedRealtime = false;
+
+      // const socket = getSocket();
+
+      // if (this._onChannelNew) {
+      //   socket.off("channel:new", this._onChannelNew);
+      //   this._onChannelNew = null;
+      // }
+    },
     clear() {
       this.messages = [];
+      this.nextURL = null;
     },
     async fetchNewMessages() {
       this.loading = true;
       console.log("NEW URL", this.nextURL);
 
-      fetch(`${this.nextURL}`, {
+      await fetch(`${this.nextURL}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -88,8 +103,10 @@ export const useMessagesStore = defineStore("messages", {
         .catch((err) => console.error(err))
         .then((data) => {
           if (data.data?.length == 0) return;
-
-          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          data.data?.sort((a: any, b: any) =>
+            a.createdAt.localeCompare(b.createdAt)
+          );
           console.log("MESSSAGEEWESS NEWEWEWEWEWE", data.data);
 
           this.messages.unshift(...data.data);
@@ -101,10 +118,11 @@ export const useMessagesStore = defineStore("messages", {
           this.loading = false;
         });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async fetchMessages(channelId: any) {
       this.loading = true;
 
-      fetch(
+      await fetch(
         `http://localhost:3333/api/messages/${channelId}/all?offset=0&limit=20`,
         {
           headers: {
@@ -115,7 +133,10 @@ export const useMessagesStore = defineStore("messages", {
         .then((res) => res.json())
         .catch((err) => console.error(err))
         .then((data) => {
-          data.data?.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          data.data?.sort((a: any, b: any) =>
+            a.createdAt.localeCompare(b.createdAt)
+          );
           console.log("MESSSAGEEWESS", data);
 
           this.messages = data.data;
@@ -127,6 +148,7 @@ export const useMessagesStore = defineStore("messages", {
           this.loading = false;
         });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     addNewMessage(message: any) {
       this.messages.push(message);
 

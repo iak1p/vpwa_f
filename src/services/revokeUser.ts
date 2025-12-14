@@ -12,7 +12,9 @@ export async function revokeUser(usernameRaw: string) {
 
   try {
     const res = await fetch(
-      `http://localhost:3333/api/channels/${encodeURIComponent(channelId)}/members/private/${encodeURIComponent(username)}/delete`,
+      `http://localhost:3333/api/channels/${encodeURIComponent(
+        channelId
+      )}/members/private/${encodeURIComponent(username)}/delete`,
       {
         method: "DELETE",
         headers: {
@@ -20,14 +22,29 @@ export async function revokeUser(usernameRaw: string) {
         },
       }
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await res.json().catch(() => ({} as any));
 
     if (!res.ok) {
-      return { ok: false, message: data?.message || `Error ${res.status}`, status: res.status, data };
+      return {
+        ok: false,
+        message: data?.message || `Error ${res.status}`,
+        status: res.status,
+        data,
+      };
     }
 
-    return { ok: true, message: data?.message || `@${username} removed`, status: res.status, data };
-  } catch (e: any) {
-    return { ok: false, message: e?.message || "Network error", status: 0 };
+    return {
+      ok: true,
+      message: data?.message || `@${username} removed`,
+      status: res.status,
+      data,
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : "Network error",
+      status: 0,
+    };
   }
 }

@@ -84,9 +84,9 @@ onMounted(async () => {
   }
 });
 
-watch(activeChannelId, (id) => {
+watch(activeChannelId, async (id) => {
   membersStore.clear();
-  if (id) membersStore.fetchByChannelId(id);
+  if (id) await membersStore.fetchByChannelId(id);
 });
 
 function statusClass(st?: Status | null) {

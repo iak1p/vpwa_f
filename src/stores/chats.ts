@@ -23,14 +23,50 @@ export const useChatsStore = defineStore("chats", {
 
       socket.off("chat:new");
 
-      socket.on(
-        "chat:new",
-        (chat: Chat, userId?: number) => {
-          if (userId != id.value) {
-            this.chats.unshift(chat);
-          }
+      socket.on("chat:new", (chat: Chat, userId?: number) => {
+        if (userId != id.value) {
+          this.chats.unshift(chat);
         }
-      );
+      });
+    },
+    destroyRealtime() {
+      const socket = getSocket();
+      socket.off("channel:new");
+      // if (!this.initedRealtime) return;
+      // this.initedRealtime = false;
+
+      // const socket = getSocket();
+
+      // if (this._onChannelNew) {
+      //   socket.off("channel:new", this._onChannelNew);
+      //   this._onChannelNew = null;
+      // }
+    },
+    clear() {
+      this.chats = [];
+      this.activeChatId = null;
+      this.activeChatName = null;
+    },
+    async updateChats(channelId: number) {
+      this.loading = true;
+      await fetch(`http://localhost:3333/api/channels/chats/${channelId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        // headers: {
+        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+        // },
+      })
+        .then((res) => res.json())
+        .then((data: Chat[]) => {
+          data.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          this.chats = data;
+          this.loading = false;
+          console.log(data);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
     async fetchChats(channelId: number) {
       this.loading = true;

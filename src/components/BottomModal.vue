@@ -153,6 +153,7 @@ async function cycleStatus() {
   const cur = status.value;
   const next = cur === "online" ? "dnd" : cur === "dnd" ? "offline" : "online";
   // user.setStatus(next);
+
   try {
     await user.setStatus(next);
     if (activeChannelId.value) {

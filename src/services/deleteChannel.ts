@@ -1,6 +1,6 @@
 import { useChannelsStore } from "src/stores/channels";
 import { storeToRefs } from "pinia";
-import { useChatsStore } from "src/stores/chats";
+// import { useChatsStore } from "src/stores/chats";
 import { useUserStore } from "src/stores/user";
 import { sendSystemMessage } from "./sendMessage";
 
@@ -32,13 +32,15 @@ export async function deleteChannel() {
       return { ok: false, message: data?.message || `Error ${res.status}` };
     }
 
-    sendSystemMessage(`${username.value} leav channel`);
+    await sendSystemMessage(`${username.value} leav channel`);
 
     channelsStore.removeChannel(activeChannelId.value);
 
-  
     return { ok: true, message: data?.message || "Channel deleted" };
-  } catch (e: any) {
-    return { ok: false, message: e?.message || "Network error" };
+  } catch (e) {
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : "Network error",
+    };
   }
 }

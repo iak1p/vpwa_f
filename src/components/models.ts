@@ -17,11 +17,12 @@ export interface Channel {
   name: string;
   description: string | null;
   isPrivate: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   owner: any;
   createdAt: string;
   updatedAt: string;
   joinedAt: string;
-  color: string
+  color: string;
 }
 
 export interface Chat {
