@@ -1,18 +1,15 @@
-// import { useChatsStore } from "src/stores/chats";
-// const chatsStore = useChatsStore();
-// const { loading: chatsLoading } = storeToRefs(chatsStore);
-
 import { useChannelsStore } from "src/stores/channels";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "src/stores/user";
 import { sendSystemMessage } from "./sendMessage";
+import { useChatsStore } from "src/stores/chats";
 const channelsStore = useChannelsStore();
 const { activeChannelId, activeChannelName } = storeToRefs(channelsStore);
+const chatsStore = useChatsStore();
 
 export async function channelLeave() {
   const userStore = useUserStore();
   const { username } = storeToRefs(userStore);
-  // const name = activeChannel.value;
   if (!activeChannelName.value || !activeChannelId.value) return;
 
   try {
@@ -23,21 +20,16 @@ export async function channelLeave() {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
-        // headers: {
-        //   ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
-        // },
       }
     );
     const data = await res.json().catch(() => ({}));
     if (!res.ok)
       throw new Error(data?.message || "Failed to leave/delete channel");
 
-    sendSystemMessage(`${username.value} leave channel`);
-    // channels.value = channels.value.filter((c) => c.name !== name);
+    await sendSystemMessage(`${username.value} leave channel`);
+
     channelsStore.removeChannel(activeChannelId.value);
-    // activeChannel.value = channels[0]?.name ?? "";
-    // channelChats.value = [];
-    // activeChat.value = "";
+    await chatsStore.fetchChats(activeChannelId.value);
   } catch (e) {
     console.error(e);
   }
